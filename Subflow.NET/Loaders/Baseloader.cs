@@ -6,7 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Subflow.NET.Loaders;
 using Subflow.NET.Loaders.Enums;
+using Subflow.NET.Loaders.Mapper;
 
 namespace SubFlow.NET.Loaders
 {
@@ -27,7 +29,7 @@ namespace SubFlow.NET.Loaders
         protected LoaderOptions Options { get; } = options?.Value ?? throw new ArgumentNullException(nameof(options));
 
         /// <summary>
-        /// Načte data ze souboru.
+        /// Načte data ze souboru pomocí streamování.
         /// </summary>
         /// <param name="filePath">Cesta k souboru.</param>
         /// <returns>Vrátí načtená data typu T.</returns>
@@ -64,7 +66,7 @@ namespace SubFlow.NET.Loaders
             {
                 try
                 {
-                    Logger.LogInformation("Načítání souboru: {FilePath} (Pokus {Attempt}/{MaxAttempts})",
+                    Logger.LogInformation("Načítání souboru pomocí streamování: {FilePath} (Pokus {Attempt}/{MaxAttempts})",
                         filePath, attempt, Options.MaxRetryAttempts);
 
                     // Kontrola existence souboru
@@ -97,24 +99,17 @@ namespace SubFlow.NET.Loaders
                         throw new InvalidOperationException($"Integrita souboru '{filePath}' není v pořádku.");
                     }
 
-                    // Čtení obsahu souboru
+                    // Čtení obsahu souboru pomocí streamování
                     Encoding encoding = Options.AutoDetectEncoding ? DetectEncoding(filePath) : Options.Encoding;
-                    var content = await File.ReadAllTextAsync(filePath, encoding);
 
-                    Logger.LogInformation("Soubor úspěšně načten. Velikost: {ContentSize} znaků.", content.Length);
+                    using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
+                    using var reader = new StreamReader(stream, encoding);
 
-                    // Validace obsahu
-                    if (Options.ValidateContent && string.IsNullOrWhiteSpace(content))
-                    {
-                        Logger.LogWarning("Obsah souboru '{FilePath}' je prázdný nebo obsahuje pouze bílé znaky.", filePath);
-                        throw new InvalidOperationException("Obsah souboru je neplatný.");
-                    }
-
-                    return await LoadFromStringAsync(content);
+                    return await LoadFromStreamAsync(reader);
                 }
                 catch (Exception ex) when (attempt < Options.MaxRetryAttempts && !Options.IgnoreErrors)
                 {
-                    Logger.LogWarning(ex, "Chyba při načítání souboru '{FilePath}' (Pokus {Attempt}/{MaxAttempts}). Opakuji za {Delay}.",
+                    Logger.LogWarning(ex, "Chyba při streamování souboru '{FilePath}' (Pokus {Attempt}/{MaxAttempts}). Opakuji za {Delay}.",
                         filePath, attempt, Options.MaxRetryAttempts, Options.RetryDelay);
 
                     await Task.Delay(Options.RetryDelay);
@@ -126,11 +121,11 @@ namespace SubFlow.NET.Loaders
         }
 
         /// <summary>
-        /// Načte data z řetězce.
+        /// Načte data ze streamu.
         /// </summary>
-        /// <param name="content">Obsah souboru jako řetězec.</param>
+        /// <param name="reader">StreamReader pro čtení obsahu souboru.</param>
         /// <returns>Vrátí načtená data typu T.</returns>
-        public abstract Task<T> LoadFromStringAsync(string content);
+        protected abstract Task<T> LoadFromStreamAsync(StreamReader reader);
 
         /// <summary>
         /// Zkontroluje, zda má aplikace oprávnění ke čtení souboru.
@@ -198,11 +193,12 @@ namespace SubFlow.NET.Loaders
             return filePath.StartsWith(@"\\", StringComparison.Ordinal);
         }
     }
+}
 
-    /// <summary>
-    /// Konfigurace loaderu.
-    /// </summary>
-    public class LoaderOptions
+/// <summary>
+/// Konfigurace loaderu.
+/// </summary>
+public class LoaderOptions
     {
         /// <summary>
         /// Kódování použité pro čtení souborů.
@@ -271,16 +267,22 @@ namespace SubFlow.NET.Loaders
         public bool DecompressFiles { get; set; } = false;
 
         /// <summary>
+        /// Instance mapperu pro mapování formátů na přípony.
+        /// </summary>
+        private readonly FileFormatMapper _fileFormatMapper = new DefaultFileFormatMapper();
+
+        /// <summary>
         /// Seznam podporovaných formátů.
         /// </summary>
         public HashSet<FileFormat> AllowedFormats { get; set; } = new()
         {
-        FileFormat.SRT, FileFormat.VTT, FileFormat.ASS // Defaultní podporované formáty
+            FileFormat.SRT,
+            FileFormat.VTT,
+            FileFormat.ASS 
         };
 
         /// <summary>
         /// Seznam povolených přípon generovaný z podporovaných formátů.
         /// </summary>
-        public HashSet<string> AllowedExtensions => FileFormatExtensions.GetAllowedExtensions(AllowedFormats);
-    }
+        public HashSet<string> AllowedExtensions => _fileFormatMapper.GetAllowedExtensions(AllowedFormats);
 }
