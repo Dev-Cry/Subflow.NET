@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Microsoft.Extensions.Logging;
 
-namespace SubFlow.NET.IO.Loader
+namespace Subflow.NET.IO.Loader.Base
 {
     public abstract class FileLoaderBase<TResult>
     {
@@ -28,7 +28,14 @@ namespace SubFlow.NET.IO.Loader
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public virtual async IAsyncEnumerable<string> LoadFileAsync(string filePath, int? bufferSize = null, int degreeOfParallelism = 4)
+        /// <summary>
+        /// Asynchronní metoda pro načítání souboru a transformaci řádků na typ TResult.
+        /// </summary>
+        /// <param name="filePath">Cesta k souboru.</param>
+        /// <param name="bufferSize">Volitelná velikost bufferu.</param>
+        /// <param name="degreeOfParallelism">Počet paralelních vláken pro zpracování.</param>
+        /// <returns>Asynchronní posloupnost výsledků typu TResult.</returns>
+        public virtual async IAsyncEnumerable<TResult> LoadFileAsync(string filePath, int? bufferSize = null, int degreeOfParallelism = 4)
         {
             // Validace cesty
             ValidateFilePath(filePath);
@@ -64,19 +71,18 @@ namespace SubFlow.NET.IO.Loader
             int bytesRead;
 
             // Vytvoření pipeline pro paralelní zpracování
-            var processingBlock = new TransformBlock<string, string>(
+            var processingBlock = new TransformBlock<string, TResult>(
                 async line =>
                 {
-                    // Simulace zpracování řádku (např. parsování, validace)
-                    await Task.Delay(1); // Nahraďte skutečným zpracováním - zde bude se tvořit opravdový processor
-                    return line.TrimEnd('\r');
+                    // Transformace řádku na TResult pomocí abstraktní metody ParseLine
+                    return await ParseLineAsync(line.TrimEnd('\r'));
                 },
                 new ExecutionDataflowBlockOptions
                 {
                     MaxDegreeOfParallelism = degreeOfParallelism // Počet paralelních vláken
                 });
 
-            var outputQueue = new BufferBlock<string>();
+            var outputQueue = new BufferBlock<TResult>();
 
             // Propojení bloků
             processingBlock.LinkTo(outputQueue, new DataflowLinkOptions { PropagateCompletion = true });
@@ -111,6 +117,14 @@ namespace SubFlow.NET.IO.Loader
 
             Logger.LogInformation("Soubor úspěšně načten asynchronně.");
         }
+
+        /// <summary>
+        /// Abstraktní metoda pro transformaci řádku na výsledný typ TResult.
+        /// Tuto metodu musí implementovat konkrétní potomek.
+        /// </summary>
+        /// <param name="line">Řádek ze souboru.</param>
+        /// <returns>Výsledek typu TResult.</returns>
+        protected abstract Task<TResult> ParseLineAsync(string line);
 
         /// <summary>
         /// Určuje optimální velikost bufferu na základě velikosti souboru a volitelného uživatelského nastavení.
