@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Microsoft.Extensions.Logging;
 
-namespace SubFlow.NET.IO.Loaders
+namespace SubFlow.NET.IO.Loader
 {
     public abstract class FileLoaderBase<TResult> : IFileLoader
     {

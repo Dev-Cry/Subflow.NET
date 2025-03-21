@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SubFlow.NET.IO.Loaders
+namespace SubFlow.NET.IO.Loader
 {
     public interface IFileLoader
     {
