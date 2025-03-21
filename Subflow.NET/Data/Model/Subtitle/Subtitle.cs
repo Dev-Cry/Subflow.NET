@@ -6,8 +6,13 @@ using System.Threading.Tasks;
 
 namespace Subflow.NET.Data.Model.Subtitle
 {
-    public class VttSubtitle : ISubtitle
+    public class Subtitle
     {
+        /// <summary>
+        /// Pořadové číslo titulku.
+        /// </summary>
+        public int Index { get; set; }
+
         /// <summary>
         /// Čas začátku titulku.
         /// </summary>
@@ -24,22 +29,11 @@ namespace Subflow.NET.Data.Model.Subtitle
         public string Text { get; set; }
 
         /// <summary>
-        /// Metadata titulku (volitelné).
-        /// </summary>
-        public Dictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>();
-
-        /// <summary>
-        /// Pozice titulku na obrazovce (např. "line:50%,align:center").
-        /// </summary>
-        public string Position { get; set; }
-
-        /// <summary>
         /// Převede titulek na řetězec pro snadné výpisování.
         /// </summary>
         public override string ToString()
         {
-            var metadataString = Metadata.Count > 0 ? string.Join(", ", Metadata) : "No metadata";
-            return $"{StartTime} --> {EndTime} {Position}\n{Text}\nMetadata: {metadataString}";
+            return $"[{Index}] {StartTime} --> {EndTime}\n{Text}";
         }
     }
 }

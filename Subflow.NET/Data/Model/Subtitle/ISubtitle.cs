@@ -1,13 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Subflow.NET.Data.Model.Subtitle
 {
+    /// <summary>
+    /// Rozhraní pro model titulku.
+    /// </summary>
     public interface ISubtitle
     {
+        /// <summary>
+        /// Pořadové číslo titulku.
+        /// </summary>
+        int Index { get; set; }
+
         /// <summary>
         /// Čas začátku titulku.
         /// </summary>
@@ -22,5 +27,11 @@ namespace Subflow.NET.Data.Model.Subtitle
         /// Text titulku.
         /// </summary>
         string Text { get; set; }
+
+        /// <summary>
+        /// Převede titulek na řetězec pro snadné výpisování.
+        /// </summary>
+        /// <returns>Řetězec reprezentující titulek.</returns>
+        string ToString();
     }
 }

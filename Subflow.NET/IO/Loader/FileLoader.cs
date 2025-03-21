@@ -5,25 +5,46 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Microsoft.Extensions.Logging;
+using Subflow.NET.Data.Model.Subtitle;
 
-namespace Subflow.NET.IO.Loader.Base
+namespace Subflow.NET.IO.Loader
 {
-    public abstract class FileLoaderBase<TResult>
+    /// <summary>
+    /// Základní třída pro načítání a parsování souborů.
+    /// </summary>
+    /// <typeparam name="TResult">Typ výsledného objektu po parsování.</typeparam>
+    public abstract class FileLoader<TResult> where TResult : ISubtitle
     {
-        // Vlastnosti
-        public string FilePath { get; private set; } // Cesta k souboru
-        public Encoding FileEncoding { get; private set; } = Encoding.UTF8; // Kódování souboru
-        public string FileExtension => GetFileExtension(FilePath); // Přípona souboru
-        public bool IsLoaded { get; private set; } // Stav načítání
+        /// <summary>
+        /// Cesta k souboru.
+        /// </summary>
+        public string FilePath { get; private set; }
 
-        // Logger
+        /// <summary>
+        /// Kódování souboru.
+        /// </summary>
+        public Encoding FileEncoding { get; private set; } = Encoding.UTF8;
+
+        /// <summary>
+        /// Přípona souboru.
+        /// </summary>
+        public string FileExtension => GetFileExtension(FilePath);
+
+        /// <summary>
+        /// Stav načítání souboru.
+        /// </summary>
+        public bool IsLoaded { get; private set; }
+
+        /// <summary>
+        /// Logger pro zpracování a protokolování chyb.
+        /// </summary>
         protected ILogger Logger { get; }
 
         /// <summary>
         /// Konstruktor pro injektování loggeru.
         /// </summary>
         /// <param name="logger">Instance loggeru.</param>
-        protected FileLoaderBase(ILogger logger)
+        protected FileLoader(ILogger logger)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -37,10 +58,10 @@ namespace Subflow.NET.IO.Loader.Base
         /// <returns>Asynchronní posloupnost výsledků typu TResult.</returns>
         public virtual async IAsyncEnumerable<TResult> LoadFileAsync(string filePath, int? bufferSize = null, int degreeOfParallelism = 4)
         {
-            // Validace cesty
+            // Validace cesty k souboru
             ValidateFilePath(filePath);
 
-            // Nastavení FilePath
+            // Nastavení cesty k souboru
             FilePath = filePath;
 
             // Logování informací o souboru
@@ -58,9 +79,10 @@ namespace Subflow.NET.IO.Loader.Base
             var fileInfo = new FileInfo(filePath);
             long fileSize = fileInfo.Length;
 
-            // Určení velikosti bufferu
+            // Určení optimální velikosti bufferu
             int effectiveBufferSize = DetermineBufferSize(bufferSize, fileSize);
 
+            // Otevření souboru pro čtení
             using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: effectiveBufferSize, useAsync: true);
             using var reader = new StreamReader(stream, FileEncoding);
 
@@ -87,6 +109,7 @@ namespace Subflow.NET.IO.Loader.Base
             // Propojení bloků
             processingBlock.LinkTo(outputQueue, new DataflowLinkOptions { PropagateCompletion = true });
 
+            // Čtení a zpracování souboru
             while ((bytesRead = await reader.ReadBlockAsync(buffer, 0, buffer.Length)) > 0)
             {
                 var chunk = new string(buffer, 0, bytesRead);
