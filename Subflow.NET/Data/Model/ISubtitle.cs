@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
-namespace Subflow.NET.Data.Model.Subtitle
+namespace Subflow.NET.Data.Model
 {
     /// <summary>
     /// Rozhraní pro model titulku.
     /// </summary>
-    public interface ISubtitle
+    public interface ISubtitle : IEquatable<ISubtitle>
     {
         /// <summary>
         /// Pořadové číslo titulku.
@@ -26,7 +27,7 @@ namespace Subflow.NET.Data.Model.Subtitle
         /// <summary>
         /// Text titulku.
         /// </summary>
-        string Text { get; set; }
+        List<string> Lines { get; set; }
 
         /// <summary>
         /// Převede titulek na řetězec pro snadné výpisování.

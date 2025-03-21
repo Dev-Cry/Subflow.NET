@@ -5,15 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Microsoft.Extensions.Logging;
-using Subflow.NET.Data.Model.Subtitle;
+using Subflow.NET.Data.Model;
 
 namespace Subflow.NET.IO.Loader
 {
     /// <summary>
-    /// Základní třída pro načítání a parsování souborů.
+    /// Třída pro načítání a parsování SRT titulků.
     /// </summary>
-    /// <typeparam name="TResult">Typ výsledného objektu po parsování.</typeparam>
-    public abstract class FileLoader<TResult> where TResult : ISubtitle
+    public class FileLoader
     {
         /// <summary>
         /// Cesta k souboru.
@@ -28,7 +27,7 @@ namespace Subflow.NET.IO.Loader
         /// <summary>
         /// Přípona souboru.
         /// </summary>
-        public string FileExtension => GetFileExtension(FilePath);
+        public string FileExtension => Path.GetExtension(FilePath)?.ToLowerInvariant();
 
         /// <summary>
         /// Stav načítání souboru.
@@ -44,19 +43,19 @@ namespace Subflow.NET.IO.Loader
         /// Konstruktor pro injektování loggeru.
         /// </summary>
         /// <param name="logger">Instance loggeru.</param>
-        protected FileLoader(ILogger logger)
+        public FileLoader(ILogger logger)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
-        /// Asynchronní metoda pro načítání souboru a transformaci řádků na typ TResult.
+        /// Asynchronní metoda pro načítání souboru a transformaci řádků na typ ISubtitle.
         /// </summary>
         /// <param name="filePath">Cesta k souboru.</param>
         /// <param name="bufferSize">Volitelná velikost bufferu.</param>
         /// <param name="degreeOfParallelism">Počet paralelních vláken pro zpracování.</param>
-        /// <returns>Asynchronní posloupnost výsledků typu TResult.</returns>
-        public virtual async IAsyncEnumerable<TResult> LoadFileAsync(string filePath, int? bufferSize = null, int degreeOfParallelism = 4)
+        /// <returns>Asynchronní posloupnost výsledků typu ISubtitle.</returns>
+        public async IAsyncEnumerable<ISubtitle> LoadFileAsync(string filePath, int? bufferSize = null, int degreeOfParallelism = 4)
         {
             // Validace cesty k souboru
             ValidateFilePath(filePath);
@@ -93,10 +92,10 @@ namespace Subflow.NET.IO.Loader
             int bytesRead;
 
             // Vytvoření pipeline pro paralelní zpracování
-            var processingBlock = new TransformBlock<string, TResult>(
+            var processingBlock = new TransformBlock<string, ISubtitle>(
                 async line =>
                 {
-                    // Transformace řádku na TResult pomocí abstraktní metody ParseLine
+                    // Transformace řádku na ISubtitle
                     return await ParseLineAsync(line.TrimEnd('\r'));
                 },
                 new ExecutionDataflowBlockOptions
@@ -104,7 +103,7 @@ namespace Subflow.NET.IO.Loader
                     MaxDegreeOfParallelism = degreeOfParallelism // Počet paralelních vláken
                 });
 
-            var outputQueue = new BufferBlock<TResult>();
+            var outputQueue = new BufferBlock<ISubtitle>();
 
             // Propojení bloků
             processingBlock.LinkTo(outputQueue, new DataflowLinkOptions { PropagateCompletion = true });
@@ -135,19 +134,48 @@ namespace Subflow.NET.IO.Loader
             // Iterace přes zpracované řádky
             while (await outputQueue.OutputAvailableAsync())
             {
-                yield return await outputQueue.ReceiveAsync();
+                var subtitle = await outputQueue.ReceiveAsync();
+                if (subtitle != null)
+                {
+                    yield return subtitle;
+                }
             }
 
             Logger.LogInformation("Soubor úspěšně načten asynchronně.");
         }
 
         /// <summary>
-        /// Abstraktní metoda pro transformaci řádku na výsledný typ TResult.
-        /// Tuto metodu musí implementovat konkrétní potomek.
+        /// Parsování řádku na objekt ISubtitle.
         /// </summary>
         /// <param name="line">Řádek ze souboru.</param>
-        /// <returns>Výsledek typu TResult.</returns>
-        protected abstract Task<TResult> ParseLineAsync(string line);
+        /// <returns>Objekt ISubtitle.</returns>
+        private async Task<ISubtitle> ParseLineAsync(string line)
+        {
+            var subtitle = new Subtitle(0, TimeSpan.Zero, TimeSpan.Zero, new List<string>());
+            if (int.TryParse(line, out int index))
+            {
+                subtitle.Index = index;
+            }
+            else if (TryParseTimeRange(line, out var startTime, out var endTime))
+            {
+                subtitle.StartTime = startTime;
+                subtitle.EndTime = endTime;
+            }
+            else if (!string.IsNullOrWhiteSpace(line))
+            {
+                // Přidáte text titulku do kolekce
+                subtitle.Lines.Add(line);
+            }
+            else
+            {
+                // Pokud je to prázdný řádek, ukončíme aktuální titulek a připravíme se na další
+                if (subtitle.Lines.Count > 0)
+                {
+                    return subtitle;
+                }
+            }
+            return null; // Pokud není validní řádek, vrátíme null
+        }
 
         /// <summary>
         /// Určuje optimální velikost bufferu na základě velikosti souboru a volitelného uživatelského nastavení.
@@ -177,7 +205,7 @@ namespace Subflow.NET.IO.Loader
         /// Validuje cestu k souboru.
         /// </summary>
         /// <param name="filePath">Cesta k souboru.</param>
-        protected void ValidateFilePath(string filePath)
+        private void ValidateFilePath(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
             {
@@ -197,7 +225,7 @@ namespace Subflow.NET.IO.Loader
         /// </summary>
         /// <param name="filePath">Cesta k souboru.</param>
         /// <returns>Přípona souboru (např. ".srt").</returns>
-        protected string GetFileExtension(string filePath)
+        private string GetFileExtension(string filePath)
         {
             return Path.GetExtension(filePath)?.ToLowerInvariant();
         }
@@ -210,6 +238,84 @@ namespace Subflow.NET.IO.Loader
         {
             FileEncoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
             Logger.LogInformation("Kódování souboru bylo změněno na: {Encoding}", encoding.EncodingName);
+        }
+
+        /// <summary>
+        /// Rozpoznávání časového intervalu v SRT formátu.
+        /// </summary>
+        /// <param name="timeRange">Časový interval ve formátu SRT.</param>
+        /// <param name="startTime">Začátek časového intervalu.</param>
+        /// <param name="endTime">Konec časového intervalu.</param>
+        /// <returns>True pokud byl časový interval úspěšně rozpoznán.</returns>
+        private bool TryParseTimeRange(string timeRange, out TimeSpan startTime, out TimeSpan endTime)
+        {
+            startTime = TimeSpan.Zero;
+            endTime = TimeSpan.Zero;
+
+            var parts = timeRange.Split(new[] { "-->" }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length != 2)
+            {
+                return false;
+            }
+
+            if (TryParseTime(parts[0], out startTime) && TryParseTime(parts[1], out endTime))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Rozpoznávání času v SRT formátu.
+        /// </summary>
+        /// <param name="timeString">Čas ve formátu SRT.</param>
+        /// <param name="time">Výsledný čas.</param>
+        /// <returns>True pokud byl čas úspěšně rozpoznán.</returns>
+        private bool TryParseTime(string timeString, out TimeSpan time)
+        {
+            time = TimeSpan.Zero;
+
+            var parts = timeString.Split(':');
+            if (parts.Length != 3)
+            {
+                return false;
+            }
+
+            if (int.TryParse(parts[0], out int hours) &&
+                int.TryParse(parts[1], out int minutes) &&
+                TryParseMilliseconds(parts[2], out int milliseconds))
+            {
+                time = new TimeSpan(hours, minutes, 0, 0, milliseconds);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Rozpoznávání milisekund v SRT formátu.
+        /// </summary>
+        /// <param name="timeString">Čas ve formátu SRT.</param>
+        /// <param name="milliseconds">Výsledné milisekundy.</param>
+        /// <returns>True pokud byly milisekundy úspěšně rozpoznány.</returns>
+        private bool TryParseMilliseconds(string timeString, out int milliseconds)
+        {
+            milliseconds = 0;
+
+            var parts = timeString.Split(',');
+            if (parts.Length != 2)
+            {
+                return false;
+            }
+
+            if (int.TryParse(parts[0], out int seconds) && int.TryParse(parts[1], out int millisecs))
+            {
+                milliseconds = seconds * 1000 + millisecs;
+                return true;
+            }
+
+            return false;
         }
     }
 }
