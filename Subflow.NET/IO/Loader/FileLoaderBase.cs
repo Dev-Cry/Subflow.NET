@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace SubFlow.NET.IO.Loader
 {
-    public abstract class FileLoaderBase<TResult> : IFileLoader
+    public abstract class FileLoaderBase<TResult>
     {
         // Vlastnosti
         public string FilePath { get; private set; } // Cesta k souboru
@@ -18,14 +18,6 @@ namespace SubFlow.NET.IO.Loader
 
         // Logger
         protected ILogger Logger { get; }
-
-        string IFileLoader.FilePath => FilePath;
-
-        Encoding IFileLoader.FileEncoding => FileEncoding;
-
-        string IFileLoader.FileExtension => FileExtension;
-
-        bool IFileLoader.IsLoaded => IsLoaded;
 
         /// <summary>
         /// Konstruktor pro injektování loggeru.
