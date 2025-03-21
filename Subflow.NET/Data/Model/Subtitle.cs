@@ -67,7 +67,7 @@ namespace Subflow.NET.Data.Model
         /// </summary>
         /// <param name="other">Druhá instance titulku.</param>
         /// <returns>True pokud jsou instance rovny, jinak false.</returns>
-        public bool Equals(ISubtitle other)
+        public bool Equals(ISubtitle? other)
         {
             if (other == null) return false;
             return Index == other.Index &&

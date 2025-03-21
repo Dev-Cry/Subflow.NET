@@ -7,43 +7,39 @@ using System.Collections.Generic;
 
 namespace Subflow.NET.Parser
 {
-    public class SubtitleParser : ISubtitleParser
+    public class SubtitleParser(ILogger logger) : ISubtitleParser
     {
-        private readonly ILogger _logger;
+        private readonly ILogger _logger = logger;
 
-        public SubtitleParser(ILogger logger)
-        {
-            _logger = logger;
-        }
         // Zjednodušený příklad stavu v parseru:
-        private Subtitle _currentSubtitle = null;
+        private Subtitle? _currentSubtitle = null;
 
-        public async Task<ISubtitle> ParseLineAsync(string line)
+        public Task<ISubtitle?> ParseLineAsync(string line)
         {
             if (int.TryParse(line, out int index))
             {
                 _currentSubtitle = new Subtitle(index, TimeSpan.Zero, TimeSpan.Zero, new List<string>());
-                return null;
+                return Task.FromResult<ISubtitle?>(null);
             }
             else if (_currentSubtitle != null && TryParseTimeRange(line, out var startTime, out var endTime))
             {
                 _currentSubtitle.StartTime = startTime;
                 _currentSubtitle.EndTime = endTime;
-                return null;
+                return Task.FromResult<ISubtitle?>(null);
             }
             else if (_currentSubtitle != null && !string.IsNullOrWhiteSpace(line))
             {
                 _currentSubtitle.Lines.Add(line);
-                return null;
+                return Task.FromResult<ISubtitle?>(null);
             }
             else if (string.IsNullOrWhiteSpace(line) && _currentSubtitle != null)
             {
                 var finishedSubtitle = _currentSubtitle;
                 _currentSubtitle = null;
-                return finishedSubtitle;
+                return Task.FromResult<ISubtitle?>(finishedSubtitle);
             }
 
-            return null;
+            return Task.FromResult<ISubtitle?>(null);
         }
 
         private bool TryParseTimeRange(string timeRange, out TimeSpan startTime, out TimeSpan endTime)
@@ -82,15 +78,15 @@ namespace Subflow.NET.Parser
             return false;
         }
 
-        public async Task<ISubtitle> FlushAsync()
+        public Task<ISubtitle?> FlushAsync()
         {
             if (_currentSubtitle != null)
             {
                 var subtitle = _currentSubtitle;
                 _currentSubtitle = null;
-                return subtitle;
+                return Task.FromResult<ISubtitle?>(subtitle);
             }
-            return null;
+            return Task.FromResult<ISubtitle?>(null);
         }
 
     }

@@ -8,6 +8,6 @@ namespace Subflow.NET.IO.Loader
 {
     public interface IFileLoader
     {
-        IAsyncEnumerable<ISubtitle> LoadFileAsync(string filePath, int? bufferSize = null, int degreeOfParallelism = 4);
+        IAsyncEnumerable<ISubtitle?> LoadFileAsync(string filePath, int? bufferSize = null, int degreeOfParallelism = 4);
     }
 }

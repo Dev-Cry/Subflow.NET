@@ -9,8 +9,8 @@ namespace Subflow.NET.Parser
 {
     public interface ISubtitleParser
     {
-        Task<ISubtitle> ParseLineAsync(string line);
+        Task<ISubtitle?> ParseLineAsync(string line);
 
-        Task<ISubtitle> FlushAsync();
+        Task<ISubtitle?> FlushAsync();
     }
 }
