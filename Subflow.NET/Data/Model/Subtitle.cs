@@ -88,7 +88,10 @@ namespace Subflow.NET.Data.Model
                 hash = hash * 23 + Index.GetHashCode();
                 hash = hash * 23 + StartTime.GetHashCode();
                 hash = hash * 23 + EndTime.GetHashCode();
-                hash = hash * 23 + Lines.GetHashCode();
+                foreach (var line in Lines)
+                {
+                    hash = hash * 23 + line.GetHashCode();
+                }
                 return hash;
             }
         }

@@ -7,14 +7,18 @@ using System.Collections.Generic;
 
 namespace Subflow.NET.Parser
 {
-        public class SubtitleParser(ILogger logger) : ISubtitleParser
-        {
-            private readonly ILogger _logger = logger;
-            private static readonly string[] _timecodeDelimiters = { "-->", "- >", "->", "-- ->", "--->", "—>", "- ->" };
-            private static readonly Regex _timeRegex = new(@"^(?<Hours>\d{2}):(?<Minutes>\d{2}):(?<Seconds>\d{2}),(?<Milliseconds>\d{3})$", RegexOptions.Compiled);
-            private Subtitle? _currentSubtitle = null;
+public class SubtitleParser : ISubtitleParser
+    {
+        private readonly ILogger<SubtitleParser> _logger;
+        private static readonly string[] _timecodeDelimiters = { "-->", "- >", "->", "-- ->", "--->", "—>", "- ->" };
+        private static readonly Regex _timeRegex = new(@"^(?<Hours>\d{2}):(?<Minutes>\d{2}):(?<Seconds>\d{2}),(?<Milliseconds>\d{3})$", RegexOptions.Compiled);
+        private Subtitle? _currentSubtitle = null;
 
-            public async Task<ISubtitle?> ParseLineAsync(string line)
+        public SubtitleParser(ILogger<SubtitleParser> logger)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+        public async Task<ISubtitle?> ParseLineAsync(string line)
             {
                 try
                 {

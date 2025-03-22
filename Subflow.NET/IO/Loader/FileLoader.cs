@@ -11,15 +11,21 @@ using Subflow.NET.Parser;
 
 namespace Subflow.NET.IO.Loader
 {
-    public class FileLoader(
-    ILogger logger,
-    IFileReader fileReader,
-    ISubtitleParser subtitleParser) : IFileLoader
+    public class FileLoader : IFileLoader
     {
-        private readonly ILogger _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly IFileReader _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
-        private readonly ISubtitleParser _subtitleParser = subtitleParser ?? throw new ArgumentNullException(nameof(subtitleParser));
+        private readonly ILogger<FileLoader> _logger;
+        private readonly IFileReader _fileReader;
+        private readonly ISubtitleParser _subtitleParser;
 
+        public FileLoader(
+            ILogger<FileLoader> logger,
+            IFileReader fileReader,
+            ISubtitleParser subtitleParser)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
+            _subtitleParser = subtitleParser ?? throw new ArgumentNullException(nameof(subtitleParser));
+        }
         public async IAsyncEnumerable<ISubtitle> LoadFileAsync(string filePath, int? bufferSize = null, int degreeOfParallelism = 4)
         {
             ValidateFilePath(filePath);
