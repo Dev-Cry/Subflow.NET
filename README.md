@@ -12,3 +12,31 @@
 - ✅ Paralelní zpracování řádků s možností nastavení stupně paralelismu
 - ✅ Jednoduchá integrace pomocí DI (dependency injection)
 - ✅ Připraveno na rozšíření pro další formáty (.vtt, .ass, ...)
+
+---
+
+## 🚀 Ukázka použití
+
+```csharp
+var fileReader = new FileReader("soubor.srt", Encoding.UTF8);
+var parser = new SubtitleParser(logger);
+var loader = new FileLoader(logger, fileReader, parser);
+
+await foreach (var subtitle in loader.LoadFileAsync("soubor.srt"))
+{
+    Console.WriteLine(subtitle.ToString());
+}
+
+---
+🧪 Testované scénáře
+✔️ Prázdné řádky mezi titulky
+
+✔️ Chybný index nebo nulový
+
+✔️ Nestandardní oddělovače časového rozsahu (-->, --->, - >, —>, atd.)
+
+✔️ Chybějící čas začátku/konce
+
+✔️ Přeházený začátek/konec => automatická korekce
+
+✔️ Víceřádkový text titulku
