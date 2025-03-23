@@ -21,16 +21,10 @@ namespace Subflow.NET.IO.Reader
             using var stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: bufferSize, useAsync: true);
             using var reader = new StreamReader(stream, _fileEncoding);
 
-            char[] buffer = new char[bufferSize];
-            int bytesRead;
-
-            while ((bytesRead = await reader.ReadBlockAsync(buffer, 0, buffer.Length)) > 0)
+            string? line;
+            while ((line = await reader.ReadLineAsync()) != null)
             {
-                var chunk = new string(buffer, 0, bytesRead);
-                foreach (var line in chunk.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    yield return line;
-                }
+                yield return line;
             }
         }
     }

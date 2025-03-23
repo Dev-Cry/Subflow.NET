@@ -26,7 +26,7 @@ namespace Subflow.NET.IO.Loader
             _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
             _subtitleParser = subtitleParser ?? throw new ArgumentNullException(nameof(subtitleParser));
         }
-        public async IAsyncEnumerable<ISubtitle> LoadFileAsync(string filePath, int? bufferSize = null, int degreeOfParallelism = 4)
+        public async IAsyncEnumerable<ISubtitle> LoadFileAsync(string filePath, int? bufferSize = null, int degreeOfParallelism = 1)
         {
             ValidateFilePath(filePath);
 
