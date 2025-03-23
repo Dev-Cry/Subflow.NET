@@ -17,14 +17,6 @@
 
 ---
 
-## 📦 Instalace
-
-Zatím není dostupné jako NuGet balíček – ručně přidej projekt jako submodul nebo přímou referenci do svého řešení:
-
-```bash
-git submodule add https://github.com/tvoje-uzivatelske-jmeno/Subflow.NET.git
-
-
 ## 🚀 Ukázka použití
 
 ```csharp
@@ -36,3 +28,11 @@ await foreach (var subtitle in loader.LoadFileAsync("soubor.srt"))
 {
     Console.WriteLine(subtitle.ToString());
 }
+
+## 📦 Instalace
+
+Zatím není dostupné jako NuGet balíček – ručně přidej projekt jako submodul nebo přímou referenci do svého řešení:
+
+```bash
+git submodule add https://github.com/tvoje-uzivatelske-jmeno/Subflow.NET.git
+
