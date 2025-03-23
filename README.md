@@ -26,17 +26,3 @@ await foreach (var subtitle in loader.LoadFileAsync("soubor.srt"))
 {
     Console.WriteLine(subtitle.ToString());
 }
-
----
-🧪 Testované scénáře
-✔️ Prázdné řádky mezi titulky
-
-✔️ Chybný index nebo nulový
-
-✔️ Nestandardní oddělovače časového rozsahu (-->, --->, - >, —>, atd.)
-
-✔️ Chybějící čas začátku/konce
-
-✔️ Přeházený začátek/konec => automatická korekce
-
-✔️ Víceřádkový text titulku
