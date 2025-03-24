@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 
 namespace Subflow.NET.Parser
 {
-    public interface ISubtitleParser
+    public interface ISubtitleBuilder
     {
-        Task<ISubtitle?> ParseLineAsync(string line);
+        Task<ISubtitle?> ParseLineAsync(string line, ISubtitleTimeParser timeParser);
         Task<ISubtitle?> FlushAsync();
     }
 }
