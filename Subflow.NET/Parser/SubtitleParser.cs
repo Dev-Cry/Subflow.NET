@@ -11,11 +11,14 @@ namespace Subflow.NET.Parser
         private readonly ISubtitleTimeParser _timeParser;
         private readonly ISubtitleBuilder _subtitleBuilder;
 
-        public SubtitleParser(ILogger<SubtitleParser> logger)
+        public SubtitleParser(
+            ILogger<SubtitleParser> logger,
+            ISubtitleTimeParser timeParser,
+            ISubtitleBuilder subtitleBuilder)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _timeParser = new SubtitleTimeParser();
-            _subtitleBuilder = new SubtitleBuilder(_logger);
+            _timeParser = timeParser ?? throw new ArgumentNullException(nameof(timeParser));
+            _subtitleBuilder = subtitleBuilder ?? throw new ArgumentNullException(nameof(subtitleBuilder));
         }
 
         public async Task<ISubtitle?> ParseLineAsync(string line)

@@ -8,10 +8,10 @@ namespace Subflow.NET.Parser
 {
     public class SubtitleBuilder : ISubtitleBuilder
     {
-        private readonly ILogger<ISubtitleParser> _logger;
-        private Subtitle? _currentSubtitle = null;
+        private readonly ILogger<SubtitleBuilder> _logger;
+        private ISubtitle? _currentSubtitle = null;
 
-        public SubtitleBuilder(ILogger<ISubtitleParser> logger)
+        public SubtitleBuilder(ILogger<SubtitleBuilder> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
