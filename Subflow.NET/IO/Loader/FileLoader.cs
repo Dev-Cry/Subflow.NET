@@ -16,32 +16,31 @@ namespace Subflow.NET.IO.Loader
         private readonly ILogger<FileLoader> _logger;
         private readonly IFileReader _fileReader;
         private readonly ISubtitleParser _subtitleParser;
-        private readonly IValidator<string> _pathValidator;
-        private readonly IValidator<FileInfo> _fileValidator;
+        private readonly IValidatorFactory _validatorFactory;
         private readonly IBufferSizeDeterminer _bufferSizeDeterminer;
 
         public FileLoader(
             ILogger<FileLoader> logger,
             IFileReader fileReader,
             ISubtitleParser subtitleParser,
-            IValidator<string> pathValidator,
-            IValidator<FileInfo> fileValidator,
+            IValidatorFactory validatorFactory,
             IBufferSizeDeterminer bufferSizeDeterminer)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
             _subtitleParser = subtitleParser ?? throw new ArgumentNullException(nameof(subtitleParser));
-            _pathValidator = pathValidator ?? throw new ArgumentNullException(nameof(pathValidator));
-            _fileValidator = fileValidator ?? throw new ArgumentNullException(nameof(fileValidator));
+            _validatorFactory = validatorFactory ?? throw new ArgumentNullException(nameof(validatorFactory));
             _bufferSizeDeterminer = bufferSizeDeterminer ?? throw new ArgumentNullException(nameof(bufferSizeDeterminer));
         }
 
-        public async IAsyncEnumerable<ISubtitle> LoadFileAsync(string filePath, int? bufferSize = null, int degreeOfParallelism = 1)
+        public async IAsyncEnumerable<ISubtitle> LoadFileAsync(string filePath, int? bufferSize = null, int degreeOfParallelism = 8)
         {
-            _pathValidator.Validate(filePath);
+            var pathValidator = _validatorFactory.CreatePathValidator();
+            pathValidator.Validate(filePath);
 
             var fileInfo = new FileInfo(filePath);
-            _fileValidator.Validate(fileInfo);
+            var fileValidator = _validatorFactory.CreateFileValidator();
+            fileValidator.Validate(fileInfo);
 
             _logger.LogInformation("Načítám soubor: {FilePath}", filePath);
             _logger.LogInformation("Formát souboru: {FileExtension}", fileInfo.Extension.ToLowerInvariant());

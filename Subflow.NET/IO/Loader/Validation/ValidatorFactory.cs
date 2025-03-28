@@ -12,6 +12,11 @@ namespace Subflow.NET.IO.Loader.Validation
     {
         private readonly ILoggerFactory _loggerFactory;
 
+        public ValidatorFactory(ILoggerFactory loggerFactory)
+        {
+            _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
+        }
+
         public IValidator<string> CreatePathValidator()
         {
             return new CompositeValidator<string>(new[]
@@ -47,7 +52,8 @@ namespace Subflow.NET.IO.Loader.Validation
         new NotEmptyFileRule(_loggerFactory.CreateLogger<NotEmptyFileRule>()),
         new ExtensionAllowedRule(_loggerFactory.CreateLogger<ExtensionAllowedRule>(), new[] { ".srt", ".vtt" }),
         new MaxFileSizeRule(_loggerFactory.CreateLogger<MaxFileSizeRule>(), 100 * 1024 * 1024),
-        new FileReadableRule(_loggerFactory.CreateLogger<FileReadableRule>())
+        new FileReadableRule(_loggerFactory.CreateLogger<FileReadableRule>()),
+        new EncodingValidatorRule(_loggerFactory.CreateLogger<EncodingValidatorRule>())
             });
         }
 

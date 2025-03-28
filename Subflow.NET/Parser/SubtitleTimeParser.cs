@@ -1,12 +1,25 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Text.RegularExpressions;
 
 namespace Subflow.NET.Parser
 {
     public class SubtitleTimeParser : ISubtitleTimeParser
     {
-        private static readonly string[] _timecodeDelimiters = { "-->", "- >", "->", "-- ->", "--->", "—>", "- ->" };
-        private static readonly Regex _timeRegex = new(@"^(?<Hours>\d{2}):(?<Minutes>\d{2}):(?<Seconds>\d{2}),(?<Milliseconds>\d{3})$", RegexOptions.Compiled);
+        private static readonly string[] _timecodeDelimiters =
+            { "-->", "- >", "->", "-- ->", "--->", "—>", "- ->" };
+
+        private static readonly Regex _timeRegex = new(
+            @"^(?<Hours>\d{2}):(?<Minutes>\d{2}):(?<Seconds>\d{2}),(?<Milliseconds>\d{3})$",
+            RegexOptions.Compiled);
+
+        private readonly ILogger<SubtitleTimeParser> _logger;
+
+        // DI-friendly konstruktor s loggerem (nebo jinou závislostí)
+        public SubtitleTimeParser(ILogger<SubtitleTimeParser> logger)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
 
         public bool TryParseTimeRange(string line, out TimeSpan startTime, out TimeSpan endTime)
         {
@@ -26,6 +39,7 @@ namespace Subflow.NET.Parser
                 }
             }
 
+            _logger.LogWarning("Nepodařilo se rozpoznat časový rozsah: {Line}", line);
             return false;
         }
 
@@ -35,7 +49,10 @@ namespace Subflow.NET.Parser
             var match = _timeRegex.Match(timeString);
 
             if (!match.Success)
+            {
+                _logger.LogDebug("Regex match selhal: {TimeString}", timeString);
                 return false;
+            }
 
             if (int.TryParse(match.Groups["Hours"].Value, out int hours) &&
                 int.TryParse(match.Groups["Minutes"].Value, out int minutes) &&
@@ -46,6 +63,7 @@ namespace Subflow.NET.Parser
                 return true;
             }
 
+            _logger.LogWarning("Selhalo parsování jednotlivých částí času: {TimeString}", timeString);
             return false;
         }
     }

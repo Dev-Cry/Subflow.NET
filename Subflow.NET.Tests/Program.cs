@@ -1,50 +1,71 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Subflow.NET.IO.Loader;
 using Subflow.NET.IO.Reader;
 using Subflow.NET.Parser;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
+using Subflow.NET.IO.Loader.Validation;
+using Subflow.NET.IO.Loader.Validation.Rules;
 using Subflow.NET.Data.Model;
 
 class Program
 {
     static async Task Main(string[] args)
     {
-        var filePath = "C:\\Users\\tomas\\source\\repos\\Subflow.NET\\Subflow.NET.Tests\\cze.srt"; // změň dle potřeby
+        var filePath = "C:\\Users\\tomas\\source\\repos\\Subflow.NET\\Subflow.NET.Tests\\cze.srt"; // uprav dle potřeby
 
-        var loggerFactory = LoggerFactory.Create(builder =>
+        var services = new ServiceCollection();
+
+        // Logging
+        services.AddLogging(builder =>
         {
-            builder.AddSimpleConsole(o =>
+            builder.AddSimpleConsole(options =>
             {
-                o.SingleLine = true;
-                o.TimestampFormat = "[HH:mm:ss] ";
+                options.SingleLine = true;
+                options.TimestampFormat = "[HH:mm:ss] ";
             });
             builder.SetMinimumLevel(LogLevel.Information);
         });
 
-        var fileReader = new FileReader(filePath, Encoding.UTF8);
-        var subtitleParser = new SubtitleParser(loggerFactory.CreateLogger<SubtitleParser>());
-        var fileLoader = new FileLoader(
-            loggerFactory.CreateLogger<FileLoader>(),
-            fileReader,
-            subtitleParser
-        );
+        // Subflow.NET závislosti
+        services.AddSingleton<IFileReader>(sp => new FileReader(filePath, Encoding.UTF8));
+        services.AddSingleton<ISubtitleParser, SubtitleParser>();
+        services.AddSingleton<ISubtitleTimeParser, SubtitleTimeParser>();
+        services.AddSingleton<ISubtitleBuilder, SubtitleBuilder>();
+        services.AddSingleton<IValidatorFactory, ValidatorFactory>();
+        services.AddSingleton<IBufferSizeDeterminer, BufferSizeDeterminer>();
+        services.AddSingleton<IFileLoader, FileLoader>();
 
+        var provider = services.BuildServiceProvider();
+
+        var fileLoader = provider.GetRequiredService<IFileLoader>();
         var subtitles = new List<ISubtitle>();
 
-        await foreach (var subtitle in fileLoader.LoadFileAsync(filePath, degreeOfParallelism: 1))
+        try
         {
-            subtitles.Add(subtitle);
-        }
+            await foreach (var subtitle in fileLoader.LoadFileAsync(filePath, degreeOfParallelism: 1))
+            {
+                subtitles.Add(subtitle);
+            }
 
-        Console.WriteLine("------ VÝPIS VŠECH TITULKŮ ------");
-        foreach (var subtitle in subtitles)
+            Console.WriteLine("\n------ VÝPIS VŠECH TITULKŮ ------");
+            foreach (var subtitle in subtitles)
+            {
+                Console.WriteLine(subtitle); // ToString() ve tvém ISubtitle by měl zobrazit formátovaný výstup
+                Console.WriteLine();
+            }
+        }
+        catch (AggregateException ex)
         {
-            Console.WriteLine(subtitle); // díky přepsané ToString() vypíše celý blok
-            Console.WriteLine();
+            Console.WriteLine("Došlo k validační chybě:");
+            foreach (var error in ex.InnerExceptions)
+            {
+                Console.WriteLine($"- {error.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Neočekávaná chyba: {ex.Message}");
         }
     }
 }
