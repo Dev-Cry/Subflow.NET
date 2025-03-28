@@ -17,10 +17,16 @@ namespace Subflow.NET.IO.Loader.Validation
 
         public void Validate(T input)
         {
+            var errors = new List<Exception>();
+
             foreach (var rule in _rules)
             {
-                rule.Validate(input);
+                try { rule.Validate(input); }
+                catch (Exception ex) { errors.Add(ex); }
             }
+
+            if (errors.Any())
+                throw new AggregateException(errors);
         }
     }
 }
