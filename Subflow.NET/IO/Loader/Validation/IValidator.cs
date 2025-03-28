@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Subflow.NET.IO.Loader
+namespace Subflow.NET.IO.Loader.Validation
 {
-    public interface IFilePathValidator
+    public interface IValidator<T>
     {
-        void Validate(string filePath);
+        void Validate(T input);
     }
 }

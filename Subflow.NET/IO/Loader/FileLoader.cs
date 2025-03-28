@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Subflow.NET.Data.Model;
 using Subflow.NET.IO.Reader;
 using Subflow.NET.Parser;
+using Subflow.NET.IO.Loader.Validation;
 
 namespace Subflow.NET.IO.Loader
 {
@@ -16,31 +16,37 @@ namespace Subflow.NET.IO.Loader
         private readonly ILogger<FileLoader> _logger;
         private readonly IFileReader _fileReader;
         private readonly ISubtitleParser _subtitleParser;
-        private readonly IFilePathValidator _filePathValidator;
+        private readonly IValidator<string> _pathValidator;
+        private readonly IValidator<FileInfo> _fileValidator;
         private readonly IBufferSizeDeterminer _bufferSizeDeterminer;
 
         public FileLoader(
             ILogger<FileLoader> logger,
             IFileReader fileReader,
             ISubtitleParser subtitleParser,
-            IFilePathValidator filePathValidator,
+            IValidator<string> pathValidator,
+            IValidator<FileInfo> fileValidator,
             IBufferSizeDeterminer bufferSizeDeterminer)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
             _subtitleParser = subtitleParser ?? throw new ArgumentNullException(nameof(subtitleParser));
-            _filePathValidator = filePathValidator ?? throw new ArgumentNullException(nameof(filePathValidator));
+            _pathValidator = pathValidator ?? throw new ArgumentNullException(nameof(pathValidator));
+            _fileValidator = fileValidator ?? throw new ArgumentNullException(nameof(fileValidator));
             _bufferSizeDeterminer = bufferSizeDeterminer ?? throw new ArgumentNullException(nameof(bufferSizeDeterminer));
         }
 
         public async IAsyncEnumerable<ISubtitle> LoadFileAsync(string filePath, int? bufferSize = null, int degreeOfParallelism = 1)
         {
-            _filePathValidator.Validate(filePath);
+            _pathValidator.Validate(filePath);
+
+            var fileInfo = new FileInfo(filePath);
+            _fileValidator.Validate(fileInfo);
 
             _logger.LogInformation("Načítám soubor: {FilePath}", filePath);
-            _logger.LogInformation("Formát souboru: {FileExtension}", Path.GetExtension(filePath)?.ToLowerInvariant());
+            _logger.LogInformation("Formát souboru: {FileExtension}", fileInfo.Extension.ToLowerInvariant());
 
-            var fileSize = new FileInfo(filePath).Length;
+            long fileSize = fileInfo.Length;
             int effectiveBufferSize = _bufferSizeDeterminer.Determine(bufferSize, fileSize);
 
             var processingBlock = new TransformBlock<string, ISubtitle>(
