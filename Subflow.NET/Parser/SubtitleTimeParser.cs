@@ -25,6 +25,12 @@ namespace Subflow.NET.Parser
         {
             startTime = endTime = TimeSpan.Zero;
 
+            // Rychlá předběžná kontrola, zda řádek vypadá jako časový rozsah
+            if (!line.Contains(":") || !line.Contains(","))
+            {
+                return false;
+            }
+
             foreach (var delimiter in _timecodeDelimiters)
             {
                 if (line.Contains(delimiter, StringComparison.OrdinalIgnoreCase))
