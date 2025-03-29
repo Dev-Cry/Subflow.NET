@@ -5,6 +5,6 @@ namespace Subflow.NET.Parser
     public interface ISubtitleTimeParser
     {
         bool TryParseTimeRange(string line, out TimeSpan startTime, out TimeSpan endTime);
-        bool TryParseTime(string timeString, out TimeSpan time);
+        bool TryParseTime(ReadOnlySpan<char> span, out TimeSpan time);
     }
 }

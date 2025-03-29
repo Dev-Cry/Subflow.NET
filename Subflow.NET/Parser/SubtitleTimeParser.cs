@@ -25,51 +25,57 @@ namespace Subflow.NET.Parser
         {
             startTime = endTime = TimeSpan.Zero;
 
-            // Rychlá předběžná kontrola, zda řádek vypadá jako časový rozsah
-            if (!line.Contains(":") || !line.Contains(","))
+            ReadOnlySpan<char> lineSpan = line.AsSpan();
+
+            // Optimalizovaná předběžná kontrola pomocí jednoho průchodu
+            if (lineSpan.IndexOf(':') < 0 || lineSpan.IndexOf(',') < 0)
             {
                 return false;
             }
 
-            foreach (var delimiter in _timecodeDelimiters)
-            {
-                if (line.Contains(delimiter, StringComparison.OrdinalIgnoreCase))
+            foreach(var delimiter in _timecodeDelimiters)
+    {
+                int delimiterIndex = lineSpan.IndexOf(delimiter, StringComparison.OrdinalIgnoreCase);
+
+                if (delimiterIndex >= 0)
                 {
-                    var parts = line.Split(new[] { delimiter }, StringSplitOptions.RemoveEmptyEntries);
-                    if (parts.Length == 2 &&
-                        TryParseTime(parts[0].Trim(), out startTime) &&
-                        TryParseTime(parts[1].Trim(), out endTime))
+                    var startPart = lineSpan.Slice(0, delimiterIndex).Trim();
+                    var endPart = lineSpan.Slice(delimiterIndex + delimiter.Length).Trim();
+
+                    if (!startPart.IsEmpty && !endPart.IsEmpty &&
+                        TryParseTime(startPart.ToString(), out startTime) &&
+                        TryParseTime(endPart.ToString(), out endTime))
                     {
                         return true;
                     }
                 }
             }
 
+
             _logger.LogWarning("Nepodařilo se rozpoznat časový rozsah: {Line}", line);
             return false;
         }
 
-        public bool TryParseTime(string timeString, out TimeSpan time)
+        public bool TryParseTime(ReadOnlySpan<char> span, out TimeSpan time)
         {
             time = TimeSpan.Zero;
-            var match = _timeRegex.Match(timeString);
 
-            if (!match.Success)
+            if (span.Length != 12 || span[2] != ':' || span[5] != ':' || span[8] != ',')
             {
-                _logger.LogDebug("Regex match selhal: {TimeString}", timeString);
+                _logger.LogDebug("Nevalidní formát času: {Span}", new string(span));
                 return false;
             }
 
-            if (int.TryParse(match.Groups["Hours"].Value, out int hours) &&
-                int.TryParse(match.Groups["Minutes"].Value, out int minutes) &&
-                int.TryParse(match.Groups["Seconds"].Value, out int seconds) &&
-                int.TryParse(match.Groups["Milliseconds"].Value, out int milliseconds))
+            if (int.TryParse(span.Slice(0, 2), out int hours) &&
+                int.TryParse(span.Slice(3, 2), out int minutes) &&
+                int.TryParse(span.Slice(6, 2), out int seconds) &&
+                int.TryParse(span.Slice(9, 3), out int milliseconds))
             {
                 time = new TimeSpan(0, hours, minutes, seconds, milliseconds);
                 return true;
             }
 
-            _logger.LogWarning("Selhalo parsování jednotlivých částí času: {TimeString}", timeString);
+            _logger.LogWarning("Selhalo parsování jednotlivých částí času: {Span}", new string(span));
             return false;
         }
     }
