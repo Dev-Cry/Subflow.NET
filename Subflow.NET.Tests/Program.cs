@@ -28,7 +28,7 @@ class Program
         });
 
         // Subflow.NET závislosti
-        services.AddSingleton<IFileReader>(sp => new FileReader(filePath, Encoding.UTF8));
+        services.AddSingleton<ISubtitleLineReader>(sp => new SubtitleLineReader(filePath, Encoding.UTF8));
         services.AddSingleton<ISubtitleParser, SubtitleParser>();
         services.AddSingleton<ISubtitleTimeParser, SubtitleTimeParser>();
         services.AddSingleton<ISubtitleBuilder, SubtitleBuilder>();

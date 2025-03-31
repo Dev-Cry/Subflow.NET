@@ -14,14 +14,14 @@ namespace Subflow.NET.IO.Loader
     public class FileLoader : IFileLoader
     {
         private readonly ILogger<FileLoader> _logger;
-        private readonly IFileReader _fileReader;
+        private readonly ISubtitleLineReader _fileReader;
         private readonly ISubtitleParser _subtitleParser;
         private readonly IValidatorFactory _validatorFactory;
         private readonly IBufferSizeDeterminer _bufferSizeDeterminer;
 
         public FileLoader(
             ILogger<FileLoader> logger,
-            IFileReader fileReader,
+            ISubtitleLineReader fileReader,
             ISubtitleParser subtitleParser,
             IValidatorFactory validatorFactory,
             IBufferSizeDeterminer bufferSizeDeterminer)
