@@ -5,9 +5,9 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Subflow.NET.Data.Model;
-using Subflow.NET.IO.Reader;
 using Subflow.NET.Parser;
 using Subflow.NET.IO.Loader.Validation;
+using Subflow.NET.IO.SubtitleReader;
 
 namespace Subflow.NET.IO.Loader
 {
