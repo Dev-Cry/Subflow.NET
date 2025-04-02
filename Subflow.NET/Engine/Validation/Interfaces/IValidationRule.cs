@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Subflow.NET.Engine.Validation.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,8 @@ namespace Subflow.NET.Engine.Validation.Interfaces
     public interface IValidationRule<T>
     {
         void Validate(T input);
+
+        ValidationSeverity DefaultSeverity { get; }
     }
 
     public interface IValidationRule

@@ -1,24 +1,24 @@
 ﻿using Microsoft.Extensions.Logging;
+using Subflow.NET.Engine.Validation.Enums;
 using Subflow.NET.Engine.Validation.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace Subflow.NET.Engine.Validation.Rules
 {
     // Pravidlo: kontrola, že soubor není prázdný
-    public class NotEmptyFileRule : IValidationRule<FileInfo>
+    public class NotEmptyFileRule : BaseValidationRule<FileInfo>
     {
         private readonly ILogger<NotEmptyFileRule> _logger;
+
+        public override ValidationSeverity DefaultSeverity => ValidationSeverity.Warning;
 
         public NotEmptyFileRule(ILogger<NotEmptyFileRule> logger)
         {
             _logger = logger;
         }
 
-        public void Validate(FileInfo input)
+        public override void Validate(FileInfo input)
         {
             if (input.Length == 0)
             {

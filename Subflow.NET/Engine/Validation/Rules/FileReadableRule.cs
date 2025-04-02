@@ -1,24 +1,24 @@
 ﻿using Microsoft.Extensions.Logging;
+using Subflow.NET.Engine.Validation.Enums;
 using Subflow.NET.Engine.Validation.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace Subflow.NET.Engine.Validation.Rules
 {
     // Pravidlo: ověření, že soubor lze otevřít pro čtení
-    public class FileReadableRule : IValidationRule<FileInfo>
+    public class FileReadableRule : BaseValidationRule<FileInfo>
     {
         private readonly ILogger<FileReadableRule> _logger;
+
+        public override ValidationSeverity DefaultSeverity => ValidationSeverity.Error;
 
         public FileReadableRule(ILogger<FileReadableRule> logger)
         {
             _logger = logger;
         }
 
-        public void Validate(FileInfo input)
+        public override void Validate(FileInfo input)
         {
             try
             {

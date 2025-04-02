@@ -1,24 +1,24 @@
 ﻿using Microsoft.Extensions.Logging;
+using Subflow.NET.Engine.Validation.Enums;
 using Subflow.NET.Engine.Validation.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace Subflow.NET.Engine.Validation.Rules
 {
     // Pravidlo: kontrola absolutní cesty
-    public class AbsolutePathRule : IValidationRule<string>
+    public class AbsolutePathRule : BaseValidationRule<string>
     {
         private readonly ILogger<AbsolutePathRule> _logger;
+
+        public override ValidationSeverity DefaultSeverity => ValidationSeverity.Warning;
 
         public AbsolutePathRule(ILogger<AbsolutePathRule> logger)
         {
             _logger = logger;
         }
 
-        public void Validate(string input)
+        public override void Validate(string input)
         {
             if (!Path.IsPathRooted(input))
             {

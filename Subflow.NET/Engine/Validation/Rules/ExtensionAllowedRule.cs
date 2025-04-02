@@ -1,18 +1,19 @@
 ﻿using Microsoft.Extensions.Logging;
+using Subflow.NET.Engine.Validation.Enums;
 using Subflow.NET.Engine.Validation.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Subflow.NET.Engine.Validation.Rules
 {
     // Pravidlo: kontrola podporované přípony
-    public class ExtensionAllowedRule : IValidationRule<FileInfo>
+    public class ExtensionAllowedRule : BaseValidationRule<FileInfo>
     {
         private readonly ILogger<ExtensionAllowedRule> _logger;
         private readonly string[] _allowedExtensions;
+
+        public override ValidationSeverity DefaultSeverity => ValidationSeverity.Error;
 
         public ExtensionAllowedRule(ILogger<ExtensionAllowedRule> logger, string[]? allowedExtensions = null)
         {
@@ -20,7 +21,7 @@ namespace Subflow.NET.Engine.Validation.Rules
             _allowedExtensions = allowedExtensions ?? new[] { ".srt" };
         }
 
-        public void Validate(FileInfo input)
+        public override void Validate(FileInfo input)
         {
             if (!_allowedExtensions.Contains(input.Extension, StringComparer.OrdinalIgnoreCase))
             {

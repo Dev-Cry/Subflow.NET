@@ -1,18 +1,17 @@
 ﻿using Microsoft.Extensions.Logging;
+using Subflow.NET.Engine.Validation.Enums;
 using Subflow.NET.Engine.Validation.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Subflow.NET.Engine.Validation.Rules
 {
     // Pravidlo: kontrola maximální velikosti souboru
-    public class MaxFileSizeRule : IValidationRule<FileInfo>
+    public class MaxFileSizeRule : BaseValidationRule<FileInfo>
     {
         private readonly ILogger<MaxFileSizeRule> _logger;
         private readonly long _maxBytes;
+
+        public override ValidationSeverity DefaultSeverity => ValidationSeverity.Warning;
 
         public MaxFileSizeRule(ILogger<MaxFileSizeRule> logger, long maxBytes = 100 * 1024 * 1024)
         {
@@ -20,7 +19,7 @@ namespace Subflow.NET.Engine.Validation.Rules
             _maxBytes = maxBytes;
         }
 
-        public void Validate(FileInfo input)
+        public override void Validate(FileInfo input)
         {
             if (input.Length > _maxBytes)
             {

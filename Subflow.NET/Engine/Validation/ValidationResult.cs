@@ -1,24 +1,38 @@
-﻿using Subflow.NET.Engine.Validation.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Subflow.NET.Engine.Validation.Enums;
+using Subflow.NET.Engine.Validation.Interfaces;
 
 namespace Subflow.NET.Engine.Validation
 {
     public class ValidationResult : IValidationResult
     {
-        public bool IsValid => !Errors.Any();
-        public List<string> Errors { get; } = new();
+        private readonly List<ValidationError> _errors = new();
 
-        public void AddError(string error)
+        public bool IsValid => !_errors.Any(e => e.Severity >= ValidationSeverity.Error);
+        public bool HasCriticalErrors => _errors.Any(e => e.Severity == ValidationSeverity.Critical);
+        public IReadOnlyList<ValidationError> Errors => _errors.AsReadOnly();
+
+        public void AddError(ValidationError error)
         {
-            if (!string.IsNullOrWhiteSpace(error))
-                Errors.Add(error);
+            if (error == null) throw new ArgumentNullException(nameof(error));
+            _errors.Add(error);
         }
 
-        public void AddErrors(IEnumerable<string> errors)
+        public void AddError(string message, ValidationSeverity severity = ValidationSeverity.Error, string? code = null, object? context = null)
+        {
+            AddError(new ValidationError(message, severity, code, context));
+        }
+
+        public void AddErrors(IEnumerable<ValidationError> errors)
         {
             foreach (var error in errors)
+            {
                 AddError(error);
+            }
+        }
+
+        public IEnumerable<ValidationError> GetErrorsBySeverity(ValidationSeverity severity)
+        {
+            return _errors.Where(e => e.Severity == severity);
         }
     }
 }

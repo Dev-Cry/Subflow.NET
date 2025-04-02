@@ -1,28 +1,27 @@
 ﻿using Microsoft.Extensions.Logging;
+using Subflow.NET.Engine.Validation.Enums;
 using Subflow.NET.Engine.Validation.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Subflow.NET.Engine.Validation.Rules
 {
     // Pravidlo: kontrola prázdné cesty
-    public class NotEmptyPathRule : IValidationRule<string>
+    public class NotEmptyPathRule : BaseValidationRule<string>
     {
         private readonly ILogger<NotEmptyPathRule> _logger;
+
+        public override ValidationSeverity DefaultSeverity => ValidationSeverity.Critical;
 
         public NotEmptyPathRule(ILogger<NotEmptyPathRule> logger)
         {
             _logger = logger;
         }
 
-        public void Validate(string input)
+        public override void Validate(string input)
         {
             if (string.IsNullOrWhiteSpace(input))
             {
-                _logger.LogWarning("Cesta k souboru je prázdná nebo null.");
+                _logger.LogCritical("Cesta k souboru je prázdná nebo null.");
                 throw new ArgumentException("Cesta k souboru nesmí být prázdná.", nameof(input));
             }
         }

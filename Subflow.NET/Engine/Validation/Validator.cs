@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Subflow.NET.Engine.Validation.Enums;
 using Subflow.NET.Engine.Validation.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel.DataAnnotations;
 
 namespace Subflow.NET.Engine.Validation
 {
@@ -22,7 +20,21 @@ namespace Subflow.NET.Engine.Validation
         {
             var result = ValidateWithResult(input);
             if (!result.IsValid && mode == ValidationMode.ThrowOnError)
-                throw new AggregateException(result.Errors.Select(e => new Exception(e)));
+            {
+                var criticalErrors = result.GetErrorsBySeverity(ValidationSeverity.Critical).ToList();
+                if (criticalErrors.Any())
+                {
+                    throw new AggregateException("Validace selhala s kritickými chybami",
+                        criticalErrors.Select(e => new ValidationException(e.Message, e)));
+                }
+
+                var errors = result.Errors.Where(e => e.Severity >= ValidationSeverity.Error).ToList();
+                if (errors.Any())
+                {
+                    throw new AggregateException("Validace selhala",
+                        errors.Select(e => new ValidationException(e.Message, e)));
+                }
+            }
         }
 
         public IValidationResult ValidateWithResult(T input)
@@ -34,16 +46,51 @@ namespace Subflow.NET.Engine.Validation
                 try
                 {
                     rule.Validate(input);
-                    _logger?.LogDebug("Rule {RuleName} passed.", rule.GetType().Name);
+                    _logger?.LogDebug("Pravidlo {RuleName} úspěšně prošlo validací.", rule.GetType().Name);
                 }
                 catch (Exception ex)
                 {
-                    _logger?.LogWarning(ex, "Rule {RuleName} failed: {Message}", rule.GetType().Name, ex.Message);
-                    result.AddError(ex.Message);
+                    var severity = rule.DefaultSeverity;
+
+                    // Logování podle závažnosti pravidla
+                    LogByLevel(_logger, severity, ex, "Pravidlo {RuleName} selhalo: {Message}",
+                        rule.GetType().Name, ex.Message);
+
+                    result.AddError(ex.Message, severity, rule.GetType().Name, ex);
                 }
             }
 
             return result;
+        }
+
+        private static void LogByLevel(ILogger? logger, ValidationSeverity severity, Exception? ex, string message, params object[] args)
+        {
+            if (logger == null) return;
+
+            switch (severity)
+            {
+                case ValidationSeverity.Verbose:
+                    logger.LogTrace(ex, message, args);
+                    break;
+                case ValidationSeverity.Debug:
+                    logger.LogDebug(ex, message, args);
+                    break;
+                case ValidationSeverity.Information:
+                    logger.LogInformation(ex, message, args);
+                    break;
+                case ValidationSeverity.Warning:
+                    logger.LogWarning(ex, message, args);
+                    break;
+                case ValidationSeverity.Error:
+                    logger.LogError(ex, message, args);
+                    break;
+                case ValidationSeverity.Critical:
+                    logger.LogCritical(ex, message, args);
+                    break;
+                default:
+                    logger.LogError(ex, message, args);
+                    break;
+            }
         }
     }
 }

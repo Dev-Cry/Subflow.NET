@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Subflow.NET.Engine.Validation.Enums;
 using Subflow.NET.Engine.Validation.Interfaces;
 using System;
 using System.IO;
@@ -6,16 +7,18 @@ using System.Text;
 
 namespace Subflow.NET.Engine.Validation.Rules
 {
-    public class EncodingValidatorRule : IValidationRule<FileInfo>
+    public class EncodingValidatorRule : BaseValidationRule<FileInfo>
     {
         private readonly ILogger<EncodingValidatorRule> _logger;
+
+        public override ValidationSeverity DefaultSeverity => ValidationSeverity.Error;
 
         public EncodingValidatorRule(ILogger<EncodingValidatorRule> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public void Validate(FileInfo input)
+        public override void Validate(FileInfo input)
         {
             if (!input.Exists)
                 throw new FileNotFoundException("Soubor neexistuje.", input.FullName);
