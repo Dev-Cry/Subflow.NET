@@ -23,8 +23,8 @@ namespace Subflow.NET.Engine.Validation
                 .OfType<IValidationRule<T>>()
                 .ToList();
 
-            var logger = _loggerFactory?.CreateLogger<Validator<T>>();
-            return new Validator<T>(matchingRules, logger);
+            var logger = _loggerFactory?.CreateLogger<DependencyAwareValidator<T>>();
+            return new DependencyAwareValidator<T>(matchingRules, logger);
         }
     }
 }
