@@ -4,10 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Subflow.NET.IO.Loader.Validation
+// --- IValidationRule<T>.cs ---
+namespace Subflow.NET.Engine.Validation.Interfaces
 {
     public interface IValidationRule<T>
     {
         void Validate(T input);
+    }
+
+    public interface IValidationRule
+    {
+        Type InputType { get; }
     }
 }

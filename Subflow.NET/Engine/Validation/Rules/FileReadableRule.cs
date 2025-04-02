@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
+using Subflow.NET.Engine.Validation.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Subflow.NET.IO.Loader.Validation.Rules
+namespace Subflow.NET.Engine.Validation.Rules
 {
     // Pravidlo: ověření, že soubor lze otevřít pro čtení
     public class FileReadableRule : IValidationRule<FileInfo>

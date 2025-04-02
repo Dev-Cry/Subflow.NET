@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using Subflow.NET.Engine.Validation.Interfaces;
 using System;
 using System.IO;
 using System.Text;
 
-namespace Subflow.NET.IO.Loader.Validation.Rules
+namespace Subflow.NET.Engine.Validation.Rules
 {
     public class EncodingValidatorRule : IValidationRule<FileInfo>
     {

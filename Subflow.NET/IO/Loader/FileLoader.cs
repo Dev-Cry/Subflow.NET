@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Subflow.NET.Data.Model;
 using Subflow.NET.Parser;
-using Subflow.NET.IO.Loader.Validation;
 using Subflow.NET.IO.SubtitleReader;
+using Subflow.NET.Engine.Validation;
+using Subflow.NET.Engine.Validation.Interfaces;
 
 namespace Subflow.NET.IO.Loader
 {
@@ -16,20 +17,20 @@ namespace Subflow.NET.IO.Loader
         private readonly ILogger<FileLoader> _logger;
         private readonly ISubtitleLineReader _fileReader;
         private readonly ISubtitleParser _subtitleParser;
-        private readonly IValidatorFactory _validatorFactory;
+        private readonly IRuleRegistry _ruleRegistry;
         private readonly IBufferSizeDeterminer _bufferSizeDeterminer;
 
         public FileLoader(
             ILogger<FileLoader> logger,
             ISubtitleLineReader fileReader,
             ISubtitleParser subtitleParser,
-            IValidatorFactory validatorFactory,
+            IRuleRegistry _ruleRegistry,
             IBufferSizeDeterminer bufferSizeDeterminer)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
             _subtitleParser = subtitleParser ?? throw new ArgumentNullException(nameof(subtitleParser));
-            _validatorFactory = validatorFactory ?? throw new ArgumentNullException(nameof(validatorFactory));
+            _ruleRegistry = ruleRegistry ?? throw new ArgumentNullException(nameof(ruleRegistry));
             _bufferSizeDeterminer = bufferSizeDeterminer ?? throw new ArgumentNullException(nameof(bufferSizeDeterminer));
         }
 
