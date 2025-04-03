@@ -1,11 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
+using Ruleflow.NET.Engine.Validation.Core.Context;
+using Ruleflow.NET.Engine.Validation.Core.Exceptions;
+using Ruleflow.NET.Engine.Validation.Core.Results;
 using Ruleflow.NET.Engine.Validation.Enums;
 using Ruleflow.NET.Engine.Validation.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ruleflow.NET.Engine.Validation
+namespace Ruleflow.NET.Engine.Validation.Core.Validators
 {
     /// <summary>
     /// Validátor podporující závislosti mezi pravidly a kontextovou validaci

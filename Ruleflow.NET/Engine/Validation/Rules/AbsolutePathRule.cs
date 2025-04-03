@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Ruleflow.NET.Engine.Validation.Core.Base;
 using Ruleflow.NET.Engine.Validation.Enums;
 
 namespace Ruleflow.NET.Engine.Validation.Rules

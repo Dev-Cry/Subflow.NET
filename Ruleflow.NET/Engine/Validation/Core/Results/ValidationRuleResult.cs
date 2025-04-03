@@ -1,4 +1,4 @@
-﻿namespace Ruleflow.NET.Engine.Validation
+﻿namespace Ruleflow.NET.Engine.Validation.Core.Results
 {
     /// <summary>
     /// Reprezentuje výsledek vyhodnocení jednoho validačního pravidla

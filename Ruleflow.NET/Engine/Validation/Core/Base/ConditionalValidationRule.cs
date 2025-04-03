@@ -1,6 +1,7 @@
-﻿using Ruleflow.NET.Engine.Validation.Interfaces;
+﻿using Ruleflow.NET.Engine.Validation.Core.Context;
+using Ruleflow.NET.Engine.Validation.Interfaces;
 
-namespace Ruleflow.NET.Engine.Validation
+namespace Ruleflow.NET.Engine.Validation.Core.Base
 {
     /// <summary>
     /// Základní třída pro pravidla, která se vyhodnocují podmíněně na základě vstupních dat

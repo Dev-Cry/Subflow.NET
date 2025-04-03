@@ -1,7 +1,7 @@
 ﻿using Ruleflow.NET.Engine.Validation.Enums;
 using Ruleflow.NET.Engine.Validation.Interfaces;
 
-namespace Ruleflow.NET.Engine.Validation
+namespace Ruleflow.NET.Engine.Validation.Core.Results
 {
     public class ValidationResult : IValidationResult
     {

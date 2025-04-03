@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using Ruleflow.NET.Engine.Validation.Core.Exceptions;
+using Ruleflow.NET.Engine.Validation.Core.Results;
 using Ruleflow.NET.Engine.Validation.Enums;
 using Ruleflow.NET.Engine.Validation.Interfaces;
-using Ruleflow.NET.Engine.Validation;
-using System.ComponentModel.DataAnnotations;
 
-namespace Ruleflow.NET.Engine.Validation
+namespace Ruleflow.NET.Engine.Validation.Core.Validators
 {
     public class Validator<T> : IValidator<T>
     {

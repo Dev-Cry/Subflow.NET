@@ -1,6 +1,6 @@
 ﻿using Ruleflow.NET.Engine.Validation.Enums;
 
-namespace Ruleflow.NET.Engine.Validation
+namespace Ruleflow.NET.Engine.Validation.Core.Results
 {
     public class ValidationError
     {

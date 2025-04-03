@@ -1,4 +1,4 @@
-﻿using Ruleflow.NET.Engine.Validation;
+﻿using Ruleflow.NET.Engine.Validation.Core.Context;
 
 namespace Ruleflow.NET.Engine.Validation.Interfaces
 {

@@ -2,7 +2,7 @@
 using Ruleflow.NET.Engine.Validation.Interfaces;
 using System;
 
-namespace Ruleflow.NET.Engine.Validation
+namespace Ruleflow.NET.Engine.Validation.Core.Base
 {
     public abstract class BaseValidationRule<T> : IValidationRule<T>, IBaseValidationRule, IPrioritizedValidationRule<T>
     {

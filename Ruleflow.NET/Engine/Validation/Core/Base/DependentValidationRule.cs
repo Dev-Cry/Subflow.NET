@@ -2,7 +2,7 @@
 using Ruleflow.NET.Engine.Validation.Interfaces;
 using System.Collections.Generic;
 
-namespace Ruleflow.NET.Engine.Validation
+namespace Ruleflow.NET.Engine.Validation.Core.Base
 {
     /// <summary>
     /// Základní třída pro validační pravidla závislá na výsledcích jiných pravidel

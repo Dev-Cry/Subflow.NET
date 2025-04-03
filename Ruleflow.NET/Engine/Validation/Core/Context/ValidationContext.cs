@@ -1,9 +1,10 @@
-﻿using Ruleflow.NET.Engine.Validation.Enums;
+﻿using Ruleflow.NET.Engine.Validation.Core.Results;
+using Ruleflow.NET.Engine.Validation.Enums;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace Ruleflow.NET.Engine.Validation
+namespace Ruleflow.NET.Engine.Validation.Core.Context
 {
     /// <summary>
     /// Poskytuje kontext pro validační proces, včetně výsledků jednotlivých pravidel

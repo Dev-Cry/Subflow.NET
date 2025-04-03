@@ -1,4 +1,6 @@
-﻿namespace Ruleflow.NET.Engine.Validation
+﻿using Ruleflow.NET.Engine.Validation.Core.Results;
+
+namespace Ruleflow.NET.Engine.Validation.Core.Exceptions
 {
     public class ValidationException : Exception
     {
