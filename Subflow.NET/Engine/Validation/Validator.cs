@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Ruleflow.NET.Engine.Validation.Enums;
 using Ruleflow.NET.Engine.Validation.Interfaces;
-using Subflow.NET.Engine.Validation;
+using Ruleflow.NET.Engine.Validation;
 using System.ComponentModel.DataAnnotations;
 
 namespace Ruleflow.NET.Engine.Validation
