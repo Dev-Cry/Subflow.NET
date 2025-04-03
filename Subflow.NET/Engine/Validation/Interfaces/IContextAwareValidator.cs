@@ -1,4 +1,6 @@
-﻿namespace Subflow.NET.Engine.Validation.Interfaces
+﻿using Ruleflow.NET.Engine.Validation;
+
+namespace Ruleflow.NET.Engine.Validation.Interfaces
 {
     /// <summary>
     /// Rozhraní pro validátory, které podporují kontextově závislou validaci

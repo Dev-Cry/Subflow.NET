@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using Subflow.NET.Engine.Validation.Enums;
-using Subflow.NET.Engine.Validation.Interfaces;
+using Ruleflow.NET.Engine.Validation.Enums;
+using Ruleflow.NET.Engine.Validation.Interfaces;
+using Subflow.NET.Engine.Validation;
 using System.ComponentModel.DataAnnotations;
 
-namespace Subflow.NET.Engine.Validation
+namespace Ruleflow.NET.Engine.Validation
 {
     public class Validator<T> : IValidator<T>
     {

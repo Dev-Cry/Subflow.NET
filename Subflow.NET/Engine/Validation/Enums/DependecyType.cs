@@ -1,4 +1,4 @@
-﻿namespace Subflow.NET.Engine.Validation.Enums
+﻿namespace Ruleflow.NET.Engine.Validation.Enums
 {
     /// <summary>
     /// Definuje typy závislostí mezi validačními pravidly

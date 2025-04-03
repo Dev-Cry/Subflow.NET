@@ -1,4 +1,4 @@
-﻿namespace Subflow.NET.Engine.Validation
+﻿namespace Ruleflow.NET.Engine.Validation
 {
     public class ValidationException : Exception
     {

@@ -1,7 +1,7 @@
-﻿using Subflow.NET.Engine.Validation.Enums;
+﻿using Ruleflow.NET.Engine.Validation.Enums;
 using System.Collections.Generic;
 
-namespace Subflow.NET.Engine.Validation.Interfaces
+namespace Ruleflow.NET.Engine.Validation.Interfaces
 {
     /// <summary>
     /// Rozhraní pro validační pravidla, která závisí na výsledcích jiných pravidel

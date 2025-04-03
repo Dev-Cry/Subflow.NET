@@ -1,6 +1,7 @@
-﻿using Subflow.NET.Engine.Validation.Enums;
+﻿using Ruleflow.NET.Engine.Validation;
+using Ruleflow.NET.Engine.Validation.Enums;
 
-namespace Subflow.NET.Engine.Validation.Interfaces
+namespace Ruleflow.NET.Engine.Validation.Interfaces
 {
     public interface IValidationResult
     {

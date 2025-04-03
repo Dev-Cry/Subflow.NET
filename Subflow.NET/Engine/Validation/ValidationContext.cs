@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace Subflow.NET.Engine.Validation
+namespace Ruleflow.NET.Engine.Validation
 {
     /// <summary>
     /// Poskytuje kontext pro validační proces, včetně výsledků jednotlivých pravidel

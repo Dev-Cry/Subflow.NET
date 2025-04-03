@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
-using Subflow.NET.Engine.Validation.Enums;
-using Subflow.NET.Engine.Validation.Interfaces;
+using Ruleflow.NET.Engine.Validation.Enums;
+using Ruleflow.NET.Engine.Validation.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Subflow.NET.Engine.Validation
+namespace Ruleflow.NET.Engine.Validation
 {
     /// <summary>
     /// Validátor podporující závislosti mezi pravidly a kontextovou validaci

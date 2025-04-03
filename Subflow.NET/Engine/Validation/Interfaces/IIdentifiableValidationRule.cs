@@ -1,4 +1,4 @@
-﻿namespace Subflow.NET.Engine.Validation.Interfaces
+﻿namespace Ruleflow.NET.Engine.Validation.Interfaces
 {
     /// <summary>
     /// Rozhraní pro validační pravidla s jednoznačným identifikátorem

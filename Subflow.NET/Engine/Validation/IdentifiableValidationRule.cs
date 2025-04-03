@@ -1,7 +1,7 @@
-﻿using Subflow.NET.Engine.Validation.Interfaces;
+﻿using Ruleflow.NET.Engine.Validation.Interfaces;
 using System;
 
-namespace Subflow.NET.Engine.Validation
+namespace Ruleflow.NET.Engine.Validation
 {
     /// <summary>
     /// Základní třída pro validační pravidla s jednoznačným identifikátorem

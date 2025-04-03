@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
-using Subflow.NET.Engine.Validation.Enums;
+using Ruleflow.NET.Engine.Validation;
+using Ruleflow.NET.Engine.Validation.Enums;
 using Subflow.NET.Engine.Validation.Interfaces;
 using System;
 using System.IO;
 
-namespace Subflow.NET.Engine.Validation.Rules
+namespace Ruleflow.NET.Engine.Validation.Rules
 {
     // Pravidlo: kontrola absolutní cesty
     public class AbsolutePathRule : BaseValidationRule<string>
