@@ -1,4 +1,5 @@
 ﻿// ValidationRuleBuilder.cs - Definuje fluent API pro tvorbu pravidel
+using Ruleflow.NET.Engine.Validation.Conditions;
 using Ruleflow.NET.Engine.Validation.Core.Base;
 using Ruleflow.NET.Engine.Validation.Enums;
 using Ruleflow.NET.Engine.Validation.Interfaces;
@@ -100,6 +101,45 @@ namespace Ruleflow.NET.Engine.Validation.Builders
         {
             _priority = priority;
             return this;
+        }
+
+        /// <summary>
+        /// Vrátí instanci builderu pro podmíněné validační pravidlo.
+        /// </summary>
+        /// <param name="condition">Podmínka pro vyhodnocení</param>
+        /// <returns>Builder pro podmíněné validační pravidlo</returns>
+        public IRuleConditionBuilder<T> If(Func<T, bool> condition)
+        {
+            // Deleguje volání na extension metodu
+            return ConditionalExtensions.If(this, condition);
+        }
+
+        /// <summary>
+        /// Vrátí instanci builderu pro switch validační pravidlo.
+        /// </summary>
+        /// <typeparam name="TValue">Typ hodnoty pro switch</typeparam>
+        /// <param name="valueSelector">Funkce pro získání hodnoty pro switch</param>
+        /// <returns>Builder pro switch validační pravidlo</returns>
+        public IRuleSwitchBuilder<T, TValue> Switch<TValue>(Func<T, TValue> valueSelector)
+        {
+            // Deleguje volání na extension metodu
+            return ConditionalExtensions.Switch(this, valueSelector);
+        }
+
+        /// <summary>
+        /// Přidá validační akci využívající ternární operátor.
+        /// </summary>
+        /// <param name="condition">Podmínka pro vyhodnocení</param>
+        /// <param name="whenTrue">Akce prováděná, když je podmínka splněna</param>
+        /// <param name="whenFalse">Akce prováděná, když podmínka není splněna</param>
+        /// <returns>Tento builder pro řetězení volání</returns>
+        public ValidationRuleBuilder<T> WithTernaryAction(
+            Func<T, bool> condition,
+            Action<T> whenTrue,
+            Action<T> whenFalse)
+        {
+            // Deleguje volání na extension metodu
+            return OperatorExtensions.WithTernaryAction(this, condition, whenTrue, whenFalse);
         }
 
         /// <summary>

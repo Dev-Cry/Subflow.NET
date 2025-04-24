@@ -69,6 +69,22 @@ namespace Ruleflow.NET.Engine.Validation
         }
 
         /// <summary>
+        /// Vytvoří podmíněné validační pravidlo s if/then/else konstrukcí.
+        /// </summary>
+        public static IRuleConditionBuilder<T> CreateConditionalRule<T>(Func<T, bool> condition)
+        {
+            return CreateRule<T>().If(condition);
+        }
+
+        /// <summary>
+        /// Vytvoří switch validační pravidlo.
+        /// </summary>
+        public static IRuleSwitchBuilder<T, TValue> CreateSwitchRule<T, TValue>(Func<T, TValue> valueSelector)
+        {
+            return CreateRule<T>().Switch(valueSelector);
+        }
+
+        /// <summary>
         /// Builder pro vytváření validačních pravidel se závislostmi na jiných pravidlech.
         /// Umožňuje intuitivní konstrukci závislých pravidel pomocí fluent API.
         /// </summary>
@@ -166,12 +182,28 @@ namespace Ruleflow.NET.Engine.Validation
             return this;
         }
 
-        /// <summary>
-        /// Vytvoří závislé validační pravidlo podle nastavených parametrů.
-        /// </summary>
-        /// <returns>Implementace IDependentValidationRule&lt;T&gt;</returns>
-        /// <exception cref="InvalidOperationException">Vyhozeno, pokud nebyla definována validační akce nebo závislosti</exception>
-        public IDependentValidationRule<T> Build()
+            /// <summary>
+            /// Vytvoří podmíněné validační pravidlo s if/then/else konstrukcí.
+            /// </summary>
+            public static IRuleConditionBuilder<T> CreateConditionalRule<T>(Func<T, bool> condition)
+            {
+                return CreateRule<T>().If(condition);
+            }
+
+            /// <summary>
+            /// Vytvoří switch validační pravidlo.
+            /// </summary>
+            public static IRuleSwitchBuilder<T, TValue> CreateSwitchRule<T, TValue>(Func<T, TValue> valueSelector)
+            {
+                return CreateRule<T>().Switch(valueSelector);
+            }
+
+            /// <summary>
+            /// Vytvoří závislé validační pravidlo podle nastavených parametrů.
+            /// </summary>
+            /// <returns>Implementace IDependentValidationRule&lt;T&gt;</returns>
+            /// <exception cref="InvalidOperationException">Vyhozeno, pokud nebyla definována validační akce nebo závislosti</exception>
+            public IDependentValidationRule<T> Build()
         {
             if (_validationAction == null)
                 throw new InvalidOperationException("Validační akce nebyla definována");
@@ -228,6 +260,9 @@ namespace Ruleflow.NET.Engine.Validation
                     // Převedení výjimky na ArgumentException s nastavenou zprávou
                     throw new ArgumentException(_errorMessage, ex);
                 }
+            }
+
+                
             }
         }
     }
