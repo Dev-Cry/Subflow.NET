@@ -30,4 +30,3 @@ public interface IRuleSwitchBuilder<T, TValue>
     /// <returns>Validační pravidlo</returns>
     IValidationRule<T> Build();
 }
-}

@@ -1,4 +1,5 @@
 ﻿using Ruleflow.NET.Engine.Validation.Core.Results;
+using System;
 
 namespace Ruleflow.NET.Engine.Validation.Core.Exceptions
 {

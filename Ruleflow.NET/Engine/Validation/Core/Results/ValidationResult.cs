@@ -100,7 +100,7 @@ namespace Ruleflow.NET.Engine.Validation.Core.Results
         /// </summary>
         /// <param name="action">Akce k provedení</param>
         /// <returns>Tentýž validační výsledek pro řetězení volání</returns>
-        public ValidationResult OnSuccess(Action action)
+        public IValidationResult OnSuccess(Action action)
         {
             if (IsValid)
             {
@@ -116,7 +116,7 @@ namespace Ruleflow.NET.Engine.Validation.Core.Results
         /// <param name="input">Validovaný objekt</param>
         /// <param name="action">Akce k provedení s objektem</param>
         /// <returns>Tentýž validační výsledek pro řetězení volání</returns>
-        public ValidationResult OnSuccess<TInput>(TInput input, Action<TInput> action)
+        public IValidationResult OnSuccess<TInput>(TInput input, Action<TInput> action)
         {
             if (IsValid)
             {
@@ -130,7 +130,7 @@ namespace Ruleflow.NET.Engine.Validation.Core.Results
         /// </summary>
         /// <param name="action">Akce pro zpracování chyb</param>
         /// <returns>Tentýž validační výsledek pro řetězení volání</returns>
-        public ValidationResult OnFailure(Action<IReadOnlyList<ValidationError>> action)
+        public IValidationResult OnFailure(Action<IReadOnlyList<ValidationError>> action)
         {
             if (!IsValid)
             {
