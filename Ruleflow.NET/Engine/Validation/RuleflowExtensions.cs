@@ -60,21 +60,20 @@ namespace Ruleflow.NET.Engine.Validation
         public static IValidationResult Validate<T>(this T input, IEnumerable<IValidationRule<T>> rules, ValidationMode mode = ValidationMode.ReturnResult)
         {
             var validator = rules.CreateValidator();
-            var result = validator.ValidateWithResult(input);
+            var result = validator.CollectValidationResults(input);
 
             if (!result.IsValid && mode == ValidationMode.ThrowOnError)
-                validator.Validate(input, mode);
+                result.ThrowIfInvalid();
 
             return result;
         }
-    }
 
-    /// <summary>
-    /// Builder pro vytváření validačních pravidel se závislostmi na jiných pravidlech.
-    /// Umožňuje intuitivní konstrukci závislých pravidel pomocí fluent API.
-    /// </summary>
-    /// <typeparam name="T">Typ vstupních dat, která budou validována</typeparam>
-    public class DependentRuleBuilder<T>
+        /// <summary>
+        /// Builder pro vytváření validačních pravidel se závislostmi na jiných pravidlech.
+        /// Umožňuje intuitivní konstrukci závislých pravidel pomocí fluent API.
+        /// </summary>
+        /// <typeparam name="T">Typ vstupních dat, která budou validována</typeparam>
+        public class DependentRuleBuilder<T>
     {
         private readonly string _ruleId;
         private Action<T> _validationAction;

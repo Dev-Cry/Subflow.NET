@@ -1,44 +1,53 @@
 ﻿using Microsoft.Extensions.Logging;
-using Ruleflow.NET.Engine.Validation.Core.Results;
 using Ruleflow.NET.Engine.Validation.Enums;
 using Ruleflow.NET.Engine.Validation.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace Ruleflow.NET.Engine.Validation.Core.Validators
+public class CompositeValidator<T> : ICompositeValidator<T>
 {
-    public class CompositeValidator<T> : ICompositeValidator<T>
+    private readonly IEnumerable<IValidator<T>> _validators;
+    private readonly ILogger? _logger;
+
+    public CompositeValidator(IEnumerable<IValidator<T>> validators, ILogger? logger = null)
     {
-        private readonly IEnumerable<IValidator<T>> _validators;
-        private readonly ILogger? _logger;
+        _validators = validators ?? throw new ArgumentNullException(nameof(validators));
+        _logger = logger;
+    }
 
-        public CompositeValidator(IEnumerable<IValidator<T>> validators, ILogger? logger = null)
+    public IValidationResult CollectValidationResults(T input)
+    {
+        var combinedResult = new ValidationResult();
+
+        foreach (var validator in _validators)
         {
-            _validators = validators ?? throw new ArgumentNullException(nameof(validators));
-            _logger = logger;
+            var result = validator.CollectValidationResults(input);
+            combinedResult.AddErrors(result.Errors);
         }
 
-        public void Validate(T input, ValidationMode mode = ValidationMode.ThrowOnError)
+        _logger?.LogInformation("Composite validation result: {ErrorCount} errors.", combinedResult.Errors.Count);
+        return combinedResult;
+    }
+
+    public void ValidateOrThrow(T input)
+    {
+        var result = CollectValidationResults(input);
+        result.ThrowIfInvalid();
+    }
+
+    public void Validate(T input, ValidationMode mode = ValidationMode.ThrowOnError)
+    {
+        if (mode == ValidationMode.ThrowOnError)
         {
-            foreach (var validator in _validators)
-            {
-                validator.Validate(input, mode);
-            }
+            ValidateOrThrow(input);
         }
-
-        public IValidationResult ValidateWithResult(T input)
+        else
         {
-            var combinedResult = new ValidationResult();
-
-            foreach (var validator in _validators)
-            {
-                var result = validator.ValidateWithResult(input);
-                combinedResult.AddErrors(result.Errors);
-            }
-
-            _logger?.LogInformation("Composite validation result: {ErrorCount} errors.", combinedResult.Errors.Count);
-            return combinedResult;
+            CollectValidationResults(input);
         }
+    }
+
+    // Opravíme také původní metodu, aby volala novou metodu
+    public IValidationResult ValidateWithResult(T input)
+    {
+        return CollectValidationResults(input);
     }
 }

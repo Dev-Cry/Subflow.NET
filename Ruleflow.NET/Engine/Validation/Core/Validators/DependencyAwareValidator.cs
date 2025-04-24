@@ -31,31 +31,38 @@ namespace Ruleflow.NET.Engine.Validation.Core.Validators
             }
         }
 
+        // Implementace původní metody - pro zpětnou kompatibilitu
         public void Validate(T input, ValidationMode mode = ValidationMode.ThrowOnError)
         {
-            var result = ValidateWithResult(input);
-            if (!result.IsValid && mode == ValidationMode.ThrowOnError)
+            if (mode == ValidationMode.ThrowOnError)
             {
-                var criticalErrors = result.GetErrorsBySeverity(ValidationSeverity.Critical).ToList();
-                if (criticalErrors.Any())
-                {
-                    throw new AggregateException("Validace selhala s kritickými chybami",
-                        criticalErrors.Select(e => new ValidationException(e.Message, e)));
-                }
-
-                var errors = result.Errors.Where(e => e.Severity >= ValidationSeverity.Error).ToList();
-                if (errors.Any())
-                {
-                    throw new AggregateException("Validace selhala",
-                        errors.Select(e => new ValidationException(e.Message, e)));
-                }
+                ValidateOrThrow(input);
+            }
+            else
+            {
+                CollectValidationResults(input);
             }
         }
 
-        public IValidationResult ValidateWithResult(T input)
+        // Hlavní veřejné API metody
+        public IValidationResult CollectValidationResults(T input)
         {
             var context = new ValidationContext();
             return ValidateWithContext(input, context);
+        }
+
+        public void ValidateOrThrow(T input)
+        {
+            var result = CollectValidationResults(input);
+            result.ThrowIfInvalid();
+        }
+
+
+
+        // Implementace rozhraní (nyní interní metoda) - pro zpětnou kompatibilitu
+        public IValidationResult ValidateWithResult(T input)
+        {
+            return CollectValidationResults(input);
         }
 
         public IValidationResult ValidateWithContext(T input, ValidationContext context)

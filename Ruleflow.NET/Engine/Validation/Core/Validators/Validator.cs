@@ -3,6 +3,9 @@ using Ruleflow.NET.Engine.Validation.Core.Exceptions;
 using Ruleflow.NET.Engine.Validation.Core.Results;
 using Ruleflow.NET.Engine.Validation.Enums;
 using Ruleflow.NET.Engine.Validation.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ruleflow.NET.Engine.Validation.Core.Validators
 {
@@ -17,28 +20,10 @@ namespace Ruleflow.NET.Engine.Validation.Core.Validators
             _logger = logger;
         }
 
-        public void Validate(T input, ValidationMode mode = ValidationMode.ThrowOnError)
-        {
-            var result = ValidateWithResult(input);
-            if (!result.IsValid && mode == ValidationMode.ThrowOnError)
-            {
-                var criticalErrors = result.GetErrorsBySeverity(ValidationSeverity.Critical).ToList();
-                if (criticalErrors.Any())
-                {
-                    throw new AggregateException("Validace selhala s kritickými chybami",
-                        criticalErrors.Select(e => new ValidationException(e.Message, e)));
-                }
-
-                var errors = result.Errors.Where(e => e.Severity >= ValidationSeverity.Error).ToList();
-                if (errors.Any())
-                {
-                    throw new AggregateException("Validace selhala",
-                        errors.Select(e => new ValidationException(e.Message, e)));
-                }
-            }
-        }
-
-        public IValidationResult ValidateWithResult(T input)
+        /// <summary>
+        /// Validuje vstupní data a vrátí objekt s výsledky validace bez vyhození výjimky.
+        /// </summary>
+        public IValidationResult CollectValidationResults(T input)
         {
             var result = new ValidationResult();
 
@@ -62,6 +47,31 @@ namespace Ruleflow.NET.Engine.Validation.Core.Validators
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Validuje vstupní data a vyhodí výjimku při selhání validace.
+        /// </summary>
+        public void ValidateOrThrow(T input)
+        {
+            var result = CollectValidationResults(input);
+            result.ThrowIfInvalid();
+        }
+
+        /// <summary>
+        /// Validuje vstup podle zadaného režimu.
+        /// Pro jasnější záměr použijte místo této metody ValidateOrThrow nebo CollectValidationResults.
+        /// </summary>
+        public void Validate(T input, ValidationMode mode = ValidationMode.ThrowOnError)
+        {
+            if (mode == ValidationMode.ThrowOnError)
+            {
+                ValidateOrThrow(input);
+            }
+            else
+            {
+                CollectValidationResults(input);
+            }
         }
 
         private static void LogByLevel(ILogger? logger, ValidationSeverity severity, Exception? ex, string message, params object[] args)
