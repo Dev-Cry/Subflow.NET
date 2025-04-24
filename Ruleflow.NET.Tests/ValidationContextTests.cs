@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿// Modified ValidationContextTests implementation
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ruleflow.NET.Engine.Validation;
 using Ruleflow.NET.Engine.Validation.Core.Base;
 using Ruleflow.NET.Engine.Validation.Core.Context;
@@ -32,6 +33,13 @@ namespace Ruleflow.NET.Tests
             public int Quantity { get; set; }
         }
 
+        [TestInitialize]
+        public void SetUp()
+        {
+            // Clear the shared validation context before each test
+            ValidationContext.Instance.Clear();
+        }
+
         [TestMethod]
         public void ValidationContext_PropagatesProperty_BetweenRules()
         {
@@ -46,9 +54,8 @@ namespace Ruleflow.NET.Tests
                         calculatedTotal += item.Price * item.Quantity;
                     }
 
-                    // Store calculated total in context for other rules to use
-                    var context = new ValidationContext();
-                    context.Properties["CalculatedTotal"] = calculatedTotal;
+                    // Store calculated total in shared context for other rules to use
+                    ValidationContext.Instance.Properties["CalculatedTotal"] = calculatedTotal;
 
                     // Verify total matches the cart's total
                     if (Math.Abs(calculatedTotal - cart.TotalAmount) > 0.01m)
@@ -61,8 +68,9 @@ namespace Ruleflow.NET.Tests
             // Testing a rule that depends on the context property but doesn't have a formal dependency
             var contextAccessRule = new ContextAwareTestRule("ContextAccessRule");
 
-            var validator = new DependencyAwareValidator<ShoppingCart>(
-                new IValidationRule<ShoppingCart>[] { calculateTotalRule, contextAccessRule });
+            // Make sure rules are executed in the right order - calculate total first
+            var rules = new List<IValidationRule<ShoppingCart>> { calculateTotalRule, contextAccessRule };
+            var validator = new DependencyAwareValidator<ShoppingCart>(rules);
 
             // Create a cart with correct total
             var cart = new ShoppingCart
@@ -80,7 +88,7 @@ namespace Ruleflow.NET.Tests
             var result = validator.CollectValidationResults(cart);
 
             // Assert
-            Assert.IsTrue(result.IsValid);
+            Assert.IsTrue(result.IsValid, "Validation failed unexpectedly");
             Assert.IsTrue(contextAccessRule.ContextAccessSuccessful, "Context property was not accessible");
         }
 
@@ -113,8 +121,9 @@ namespace Ruleflow.NET.Tests
             var resultCheckRule = new RuleResultCheckingRule("ResultCheckRule",
                 new[] { "HasItemsRule", "PromoCodeRule" });
 
-            var validator = new DependencyAwareValidator<ShoppingCart>(
-                new IValidationRule<ShoppingCart>[] { hasItemsRule, promoCodeRule, resultCheckRule });
+            // Order matters - execute the rules that are being checked first
+            var rules = new List<IValidationRule<ShoppingCart>> { hasItemsRule, promoCodeRule, resultCheckRule };
+            var validator = new DependencyAwareValidator<ShoppingCart>(rules);
 
             // Cart with items and valid promo code
             var validCart = new ShoppingCart
@@ -128,7 +137,7 @@ namespace Ruleflow.NET.Tests
             var result = validator.CollectValidationResults(validCart);
 
             // Assert
-            Assert.IsTrue(result.IsValid);
+            Assert.IsTrue(result.IsValid, "Validation failed unexpectedly");
             Assert.IsTrue(resultCheckRule.AllRulesSucceeded, "Rule results were not accessible in context");
         }
 
@@ -147,8 +156,9 @@ namespace Ruleflow.NET.Tests
             // Rule that checks if the first rule failed
             var failureCheckRule = new RuleFailureCheckingRule("FailureCheckRule", "CartValidRule");
 
-            var validator = new DependencyAwareValidator<ShoppingCart>(
-                new IValidationRule<ShoppingCart>[] { cartValidRule, failureCheckRule });
+            // Order matters - execute the rule that is being checked first
+            var rules = new List<IValidationRule<ShoppingCart>> { cartValidRule, failureCheckRule };
+            var validator = new DependencyAwareValidator<ShoppingCart>(rules);
 
             var cart = new ShoppingCart { Id = 1 };
 
@@ -157,7 +167,7 @@ namespace Ruleflow.NET.Tests
 
             // Assert
             Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(1, result.Errors.Count, "Expected exactly one error");
             Assert.AreEqual("Cart validation failed", result.Errors[0].Message);
             Assert.IsTrue(failureCheckRule.FailureDetected, "Rule failure was not accessible in context");
         }
@@ -183,12 +193,12 @@ namespace Ruleflow.NET.Tests
             Assert.AreEqual(new DateTime(2025, 4, 24), context.Properties["DateValue"]);
 
             var retrievedList = context.Properties["ListValue"] as List<string>;
-            Assert.IsNotNull(retrievedList);
+            Assert.IsNotNull(retrievedList, "Failed to retrieve list");
             Assert.AreEqual(3, retrievedList.Count);
             Assert.AreEqual("Two", retrievedList[1]);
 
             var retrievedObject = context.Properties["ObjectValue"] as CartItem;
-            Assert.IsNotNull(retrievedObject);
+            Assert.IsNotNull(retrievedObject, "Failed to retrieve object");
             Assert.AreEqual(101, retrievedObject.ProductId);
             Assert.AreEqual(19.99m, retrievedObject.Price);
         }
@@ -298,8 +308,8 @@ namespace Ruleflow.NET.Tests
 
             public override void Validate(ShoppingCart input)
             {
-                // This rule would throw if the context access fails
-                var context = new ValidationContext();
+                // Use ValidationContext.Instance to access the shared context
+                var context = ValidationContext.Instance;
                 if (context.Properties.TryGetValue("CalculatedTotal", out var calculatedTotal))
                 {
                     decimal total = (decimal)calculatedTotal;
@@ -332,7 +342,8 @@ namespace Ruleflow.NET.Tests
 
             public override void Validate(ShoppingCart input)
             {
-                var context = new ValidationContext();
+                // Use ValidationContext.Instance to access the shared context
+                var context = ValidationContext.Instance;
 
                 AllRulesSucceeded = true;
                 foreach (var ruleId in _rulesToCheck)
@@ -361,7 +372,8 @@ namespace Ruleflow.NET.Tests
 
             public override void Validate(ShoppingCart input)
             {
-                var context = new ValidationContext();
+                // Use ValidationContext.Instance to access the shared context
+                var context = ValidationContext.Instance;
 
                 if (context.RuleResults.TryGetValue(_ruleToCheck, out var result) && !result.Success)
                 {

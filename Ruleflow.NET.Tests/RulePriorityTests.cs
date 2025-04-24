@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿// Modified RulePriorityTests implementation
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ruleflow.NET.Engine.Validation;
 using Ruleflow.NET.Engine.Validation.Core.Results;
 using Ruleflow.NET.Engine.Validation.Core.Validators;
@@ -63,10 +64,17 @@ namespace Ruleflow.NET.Tests
                 })
                 .Build();
 
-            var validator = new DependencyAwareValidator<Product>(
-                new[] { normalPriorityRule, lowPriorityRule, highPriorityRule });
+            // Explicitly set the order so tests are predictable - this is important!
+            // Order them intentionally NOT in priority order to verify the priority sorting works
+            var rules = new List<IValidationRule<Product>>
+            {
+                normalPriorityRule,
+                lowPriorityRule,
+                highPriorityRule
+            };
 
-            // Mix up the order of rules in the collection to ensure priority is what determines execution order
+            var validator = new DependencyAwareValidator<Product>(rules);
+
             var product = new Product
             {
                 Id = 1,
@@ -75,7 +83,8 @@ namespace Ruleflow.NET.Tests
                 Stock = 10
             };
 
-            // Act
+            // Act - Clear execution tracker before validation
+            executionTracker.Clear();
             validator.CollectValidationResults(product);
 
             // Assert
@@ -123,7 +132,8 @@ namespace Ruleflow.NET.Tests
 
             var product = new Product { Id = 1, Name = "Test" };
 
-            // Act
+            // Act - Clear execution tracker before validation
+            executionTracker.Clear();
             validator.CollectValidationResults(product);
 
             // Assert - Should match the order they were added to the validator
@@ -168,12 +178,19 @@ namespace Ruleflow.NET.Tests
                 .Build();
 
             // The order in the collection is intentionally not in priority order
-            var validator = new DependencyAwareValidator<Product>(
-                new[] { lowPriorityRule, highPriorityRule, mediumPriorityRule });
+            var rules = new List<IValidationRule<Product>>
+            {
+                lowPriorityRule,
+                highPriorityRule,
+                mediumPriorityRule
+            };
+
+            var validator = new DependencyAwareValidator<Product>(rules);
 
             var product = new Product { Id = 1, Name = "Test" };
 
-            // Act
+            // Act - Clear execution tracker before validation
+            executionTracker.Clear();
             var result = validator.CollectValidationResults(product);
 
             // Assert
@@ -222,12 +239,19 @@ namespace Ruleflow.NET.Tests
                 .Build();
 
             // Create validator with mixed order
-            var validator = new DependencyAwareValidator<Product>(
-                new[] { dependentRule, highPriorityRule, baseRule });
+            var rules = new List<IValidationRule<Product>>
+            {
+                dependentRule,
+                highPriorityRule,
+                baseRule
+            };
+
+            var validator = new DependencyAwareValidator<Product>(rules);
 
             var product = new Product { Id = 1, Name = "Test" };
 
-            // Act
+            // Act - Clear execution tracker before validation
+            executionTracker.Clear();
             validator.CollectValidationResults(product);
 
             // Assert
@@ -277,8 +301,15 @@ namespace Ruleflow.NET.Tests
                 )
                 .Build();
 
-            var validator = new DependencyAwareValidator<Product>(
-                new[] { lowPriorityRule, mediumPriorityRule, highPriorityRule });
+            // The order in the collection is intentionally not in priority order
+            var rules = new List<IValidationRule<Product>>
+            {
+                lowPriorityRule,
+                mediumPriorityRule,
+                highPriorityRule
+            };
+
+            var validator = new DependencyAwareValidator<Product>(rules);
 
             var product = new Product
             {
@@ -288,7 +319,8 @@ namespace Ruleflow.NET.Tests
                 IsDiscounted = true
             };
 
-            // Act
+            // Act - Clear execution tracker before validation
+            executionTracker.Clear();
             validator.CollectValidationResults(product);
 
             // Assert
