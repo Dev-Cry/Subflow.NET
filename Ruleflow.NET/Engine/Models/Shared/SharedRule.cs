@@ -1,4 +1,5 @@
-﻿using Ruleflow.NET.Engine.Models.Rule.Context;
+﻿using Ruleflow.NET.Engine.Models.Rule;
+using Ruleflow.NET.Engine.Models.Rule.Context;
 using System.Text;
 
 namespace Ruleflow.NET.Engine.Models.Shared
