@@ -1,35 +1,38 @@
-﻿using Ruleflow.NET.Engine.Models.Rule.Type.Interface;
+﻿using Ruleflow.NET.Engine.Models.Evaluation;
+using Ruleflow.NET.Engine.Models.Rule.Context;
+using Ruleflow.NET.Engine.Models.Rule.Type;
+using Ruleflow.NET.Engine.Models.Rule.Type.Interface;
 
 namespace Ruleflow.NET.Engine.Models.Rule.Interface
 {
     /// <summary>
-    /// Základní rozhraní pro pravidlo s typovou bezpečností.
+    /// Základní rozhraní pro všechna validační pravidla.
     /// </summary>
-    /// <typeparam name="TInput">Typ dat, která budou validována.</typeparam>
+    /// <typeparam name="TInput">Typ validovaných dat.</typeparam>
     public interface IRule<TInput>
     {
         /// <summary>
-        /// Unikátní identifikátor pravidla v databázi.
+        /// Jedinečný identifikátor pravidla.
         /// </summary>
         int Id { get; }
 
         /// <summary>
-        /// Veřejný identifikátor pravidla pro použití v kódu.
+        /// Řetězcový identifikátor pravidla (GUID).
         /// </summary>
         string RuleId { get; }
 
         /// <summary>
-        /// Volitelný název pravidla.
+        /// Název pravidla.
         /// </summary>
         string? Name { get; }
 
         /// <summary>
-        /// Volitelný popis pravidla.
+        /// Popis pravidla.
         /// </summary>
         string? Description { get; }
 
         /// <summary>
-        /// Priorita pravidla. Vyšší číslo = vyšší priorita.
+        /// Priorita pravidla (vyšší číslo = vyšší priorita).
         /// </summary>
         int Priority { get; }
 
@@ -39,18 +42,26 @@ namespace Ruleflow.NET.Engine.Models.Rule.Interface
         bool IsActive { get; }
 
         /// <summary>
-        /// Časová značka vytvoření nebo poslední aktualizace pravidla.
+        /// Časová značka vytvoření/aktualizace pravidla.
         /// </summary>
         DateTimeOffset Timestamp { get; }
 
         /// <summary>
-        /// ID typu pravidla.
+        /// Identifikátor typu pravidla.
         /// </summary>
         int RuleTypeId { get; }
 
         /// <summary>
-        /// Odkaz na typ pravidla.
+        /// Typ pravidla.
         /// </summary>
         IRuleType Type { get; }
+
+        /// <summary>
+        /// Vyhodnotí pravidlo proti zadaným vstupním datům.
+        /// </summary>
+        /// <param name="input">Vstupní data pro validaci.</param>
+        /// <param name="context">Kontext vyhodnocení pravidla.</param>
+        /// <returns>Výsledek vyhodnocení pravidla.</returns>
+        RuleEvaluationResult<TInput> Evaluate(TInput input, RuleContext context);
     }
 }
