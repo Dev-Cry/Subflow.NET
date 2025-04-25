@@ -1,4 +1,4 @@
-﻿using Ruleflow.NET.Engine.Models.Rule;
+﻿using Ruleflow.NET.Engine.Models.Rule.Context;
 using System;
 using System.Collections.Generic;
 using System.Text;

@@ -1,46 +1,30 @@
-﻿using Ruleflow.NET.Engine.Models.Rule;
-
+﻿using Ruleflow.NET.Engine.Models.Rule.Type;
 using System.Text;
 
 /// <summary>
 /// Představuje konkrétní validační pravidlo v Ruleflow.NET systému,.
 /// </summary>
 /// <typeparam name="TInput">Typ dat, která budou validována.</typeparam>
-public class Rule<TInput>
+public class Rule<TInput>(
+    int id,
+    RuleType type,
+    string? ruleId = null,
+    string? name = null,
+    string? description = null,
+    int priority = 0,
+    bool isActive = true,
+    DateTimeOffset? timestamp = null)
 {
-    public int Id { get; }
-    public string RuleId { get; }
-    public string? Name { get; }
-    public string? Description { get; }
-    public int Priority { get; }
-    public bool IsActive { get; }
-    public DateTimeOffset Timestamp { get; }
+    public int Id { get; } = id;
+    public string RuleId { get; } = ruleId ?? Guid.NewGuid().ToString();
+    public string? Name { get; } = name;
+    public string? Description { get; } = description;
+    public int Priority { get; } = priority;
+    public bool IsActive { get; } = isActive;
+    public DateTimeOffset Timestamp { get; } = timestamp?.ToUniversalTime() ?? DateTimeOffset.UtcNow;
 
-    // --- silná vazba na RuleType:
-    public int RuleTypeId { get; }      // FK pro ORM
-    public RuleType Type { get; }       // navigační vlastnost
-
-    public Rule(
-        int id,
-        RuleType type,
-        string? ruleId = null,
-        string? name = null,
-        string? description = null,
-        int priority = 0,
-        bool isActive = true,
-        DateTimeOffset? timestamp = null)
-    {
-        Id = id;
-        Type = type ?? throw new ArgumentNullException(nameof(type));
-        RuleTypeId = type.Id;
-
-        RuleId = ruleId ?? Guid.NewGuid().ToString();
-        Name = name;
-        Description = description;
-        Priority = priority;
-        IsActive = isActive;
-        Timestamp = timestamp?.ToUniversalTime() ?? DateTimeOffset.UtcNow;
-    }
+    public int RuleTypeId { get; } = type.Id;
+    public RuleType Type { get; } = type ?? throw new ArgumentNullException(nameof(type));
 
     public override string ToString()
     {

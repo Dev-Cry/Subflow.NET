@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Ruleflow.NET.Engine.Models.Rule
+namespace Ruleflow.NET.Engine.Models.Rule.Context
 {
 
     /// <summary>

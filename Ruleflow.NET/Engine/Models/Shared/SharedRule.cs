@@ -1,6 +1,7 @@
-﻿using System.Text;
+﻿using Ruleflow.NET.Engine.Models.Rule.Context;
+using System.Text;
 
-namespace Ruleflow.NET.Engine.Models.Rule
+namespace Ruleflow.NET.Engine.Models.Shared
 {
 
     /// <summary>

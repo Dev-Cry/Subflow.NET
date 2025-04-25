@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using Ruleflow.NET.Engine.Models.Evaluation;
+using Ruleflow.NET.Engine.Models.Shared;
 
-namespace Ruleflow.NET.Engine.Models.Rule
+namespace Ruleflow.NET.Engine.Models.Rule.Audit
 {
     /// <summary>
     /// Audituje sdílené pravidlo (SharedRule) spolu s výsledky jeho vyhodnocení.

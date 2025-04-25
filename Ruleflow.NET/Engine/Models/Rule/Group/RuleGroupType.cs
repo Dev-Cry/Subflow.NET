@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
-namespace Ruleflow.NET.Engine.Models.Rule
+namespace Ruleflow.NET.Engine.Models.Rule.Group
 {
     /// <summary>
-    /// Reprezentuje kategorii či typ pravidla v systému Ruleflow.NET.
+    /// Reprezentuje kategorii či typ skupiny pravidel v systému Ruleflow.NET.
     /// </summary>
-    public class RuleType
+    public class RuleGroupType
     {
         public int Id { get; }
         public string Code { get; }
@@ -15,7 +16,8 @@ namespace Ruleflow.NET.Engine.Models.Rule
         public bool IsEnabled { get; }
         public DateTimeOffset CreatedAt { get; }
 
-        public RuleType(
+
+        public RuleGroupType(
             int id,
             string code,
             string name,
@@ -34,7 +36,7 @@ namespace Ruleflow.NET.Engine.Models.Rule
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"RuleType(Id={Id}, Code=\"{Code}\", Name=\"{Name}\"");
+            sb.Append($"RuleGroupType(Id={Id}, Code=\"{Code}\", Name=\"{Name}\"");
             if (!string.IsNullOrEmpty(Description))
                 sb.Append($", Description=\"{Description}\"");
             sb.Append($", IsEnabled={IsEnabled}");
@@ -44,4 +46,3 @@ namespace Ruleflow.NET.Engine.Models.Rule
         }
     }
 }
-

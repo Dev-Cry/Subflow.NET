@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Ruleflow.NET.Engine.Models.Rule;
+using Ruleflow.NET.Engine.Models.Shared;
 
 namespace Ruleflow.NET.Engine.Models.Evaluation
 {
