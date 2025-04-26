@@ -75,7 +75,7 @@ namespace Ruleflow.NET.Engine.Registry.Interface
         /// </summary>
         /// <param name="ruleType">Typ pravidla.</param>
         /// <returns>Seznam pravidel daného typu nebo prázdný seznam, pokud žádná pravidla neexistují.</returns>
-        IReadOnlyList<IRule<TInput>> GetRulesByType(IRuleType ruleType);
+        IReadOnlyList<IRule<TInput>> GetRulesByType(IRuleType<TInput> ruleType);
 
         /// <summary>
         /// Získá pravidla podle priority.

@@ -1,13 +1,15 @@
-﻿using System;
+﻿using Ruleflow.NET.Engine.Models.Rule.Group.Interface;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Ruleflow.NET.Engine.Models.Rule.Group
 {
     /// <summary>
-    /// Reprezentuje kategorii či typ skupiny pravidel v systému Ruleflow.NET.
+    /// Reprezentuje kategorii či typ skupiny pravidel s typovou vazbou na vstupní data.
     /// </summary>
-    public class RuleGroupType
+    /// <typeparam name="TInput">Typ validovaných dat.</typeparam>
+    public class RuleGroupType<TInput> : IRuleGroupType<TInput>
     {
         public int Id { get; }
         public string Code { get; }
@@ -16,7 +18,15 @@ namespace Ruleflow.NET.Engine.Models.Rule.Group
         public bool IsEnabled { get; }
         public DateTimeOffset CreatedAt { get; }
 
-
+        /// <summary>
+        /// Vytvoří nový typ skupiny pravidel.
+        /// </summary>
+        /// <param name="id">Jedinečný identifikátor.</param>
+        /// <param name="code">Kód typu skupiny.</param>
+        /// <param name="name">Název typu skupiny.</param>
+        /// <param name="description">Volitelný popis.</param>
+        /// <param name="isEnabled">Zda je typ povolen.</param>
+        /// <param name="createdAt">Datum a čas vytvoření.</param>
         public RuleGroupType(
             int id,
             string code,
@@ -36,7 +46,7 @@ namespace Ruleflow.NET.Engine.Models.Rule.Group
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"RuleGroupType(Id={Id}, Code=\"{Code}\", Name=\"{Name}\"");
+            sb.Append($"RuleGroupType<{typeof(TInput).Name}>(Id={Id}, Code=\"{Code}\", Name=\"{Name}\"");
             if (!string.IsNullOrEmpty(Description))
                 sb.Append($", Description=\"{Description}\"");
             sb.Append($", IsEnabled={IsEnabled}");

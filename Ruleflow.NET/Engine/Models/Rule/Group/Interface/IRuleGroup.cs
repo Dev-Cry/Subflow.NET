@@ -1,5 +1,7 @@
 ﻿using Ruleflow.NET.Engine.Models.Rule.Group.Interface;
 using Ruleflow.NET.Engine.Models.Rule.Interface;
+using System;
+using System.Collections.Generic;
 
 namespace Ruleflow.NET.Engine.Models.Rule.Group.Interface
 {
@@ -47,7 +49,7 @@ namespace Ruleflow.NET.Engine.Models.Rule.Group.Interface
         /// <summary>
         /// Odkaz na typ skupiny.
         /// </summary>
-        IRuleGroupType Type { get; }
+        IRuleGroupType<TInput> Type { get; }
 
         /// <summary>
         /// Pravidla ve skupině.

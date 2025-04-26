@@ -7,7 +7,7 @@ namespace Ruleflow.NET.Engine.Models.Rule.Type
     /// <summary>
     /// Reprezentuje kategorii či typ pravidla v systému Ruleflow.NET.
     /// </summary>
-    public class RuleType : IRuleType
+    public class RuleType<TInput> : IRuleType<TInput>
     {
         /// <summary>
         /// Jedinečný identifikátor typu pravidla.

@@ -3,7 +3,7 @@
     /// <summary>
     /// Rozhraní pro typ pravidla.
     /// </summary>
-    public interface IRuleType
+    public interface IRuleType<TInput>
     {
         /// <summary>
         /// Unikátní identifikátor typu pravidla.

@@ -1,38 +1,41 @@
-﻿namespace Ruleflow.NET.Engine.Models.Rule.Group.Interface
+﻿using System;
+
+namespace Ruleflow.NET.Engine.Models.Rule.Group.Interface
 {
     /// <summary>
-    /// Rozhraní pro typ skupiny pravidel.
+    /// Rozhraní pro typ skupiny pravidel s typovou vazbou na vstupní data.
     /// </summary>
-    public interface IRuleGroupType
+    /// <typeparam name="TInput">Typ validovaných dat.</typeparam>
+    public interface IRuleGroupType<TInput>
     {
         /// <summary>
         /// Unikátní identifikátor typu skupiny.
         /// </summary>
-        int Id { get; }
+        new int Id { get; }
 
         /// <summary>
         /// Kód typu skupiny (zkratka).
         /// </summary>
-        string Code { get; }
+        new string Code { get; }
 
         /// <summary>
         /// Název typu skupiny.
         /// </summary>
-        string Name { get; }
+        new string Name { get; }
 
         /// <summary>
         /// Volitelný popis typu skupiny.
         /// </summary>
-        string? Description { get; }
+        new string? Description { get; }
 
         /// <summary>
         /// Indikuje, zda je typ skupiny aktivní.
         /// </summary>
-        bool IsEnabled { get; }
+        new bool IsEnabled { get; }
 
         /// <summary>
         /// Datum a čas vytvoření typu skupiny.
         /// </summary>
-        DateTimeOffset CreatedAt { get; }
+        new DateTimeOffset CreatedAt { get; }
     }
 }
